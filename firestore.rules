@@ -108,6 +108,7 @@ service cloud.firestore {
         && d.history.size() == 1
         && entryShape(d.history[0])
         && d.history[0].status == 'submitted'
+        && d.history[0].byName == 'Reporter'   // never the real name, so hiding it later cannot leak
         && d.history[0].note is string
         && detailsValid(d)
         && photoValid(d);

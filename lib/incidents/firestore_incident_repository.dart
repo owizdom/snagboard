@@ -66,7 +66,7 @@ class FirestoreIncidentRepository implements IncidentRepository {
           {
             'status': IncidentStatus.submitted.wire,
             'note': 'Filed',
-            'byName': draft.anonymous ? 'Reporter' : reporter.displayName,
+            'byName': 'Reporter', // never the name: hiding it later must not leak
             'at': Timestamp.now(),
           },
         ],
