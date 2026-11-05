@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -50,11 +52,24 @@ class ReviewStep extends ConsumerWidget {
                       Text(d.description, style: const TextStyle(height: 1.35)),
                       const SizedBox(height: 10),
                       Text(
-                        '${d.urgency.label.toUpperCase()} URGENCY'
-                        '${d.photoPath != null ? '  PHOTO ATTACHED' : ''}'
-                        '${d.anonymous ? '  NAME HIDDEN' : ''}',
+                        '${d.urgency.label.toUpperCase()}'
+                        '${d.anonymous ? '  ·  NAME HIDDEN' : ''}',
                         style: small,
                       ),
+                      // The picked photo, so the student sees what will be sent.
+                      if (d.photoPath != null) ...[
+                        const SizedBox(height: 10),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(Snag.radius),
+                          child: Image.file(
+                            File(d.photoPath!),
+                            height: 160,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) => Text('PHOTO ATTACHED', style: small),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
