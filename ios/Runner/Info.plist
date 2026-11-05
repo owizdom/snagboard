@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Snagboard uses the camera to photograph the problem you are reporting.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Snagboard attaches a photo of the problem to your report so staff can see it.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
