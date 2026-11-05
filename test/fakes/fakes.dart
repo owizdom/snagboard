@@ -39,6 +39,7 @@ const student = AppUser(
   email: 'amani@alustudent.com',
   displayName: 'Amani Student',
   role: UserRole.student,
+  programme: 'BSc Software Engineering',
 );
 const otherStudent = AppUser(
   uid: 'stu2',
@@ -151,6 +152,44 @@ class FakeProfileRepository implements ProfileRepository {
   @override
   Future<void> create(AppUser user) async {
     _users[user.uid] = user;
+    _changes.add(null);
+  }
+
+  final calls = <String>[];
+
+  @override
+  Future<void> update(
+    String uid, {
+    required String displayName,
+    String? programme,
+  }) async {
+    calls.add('update:$uid:$displayName:$programme');
+    final u = _users[uid]!;
+    _users[uid] = AppUser(
+      uid: uid,
+      email: u.email,
+      displayName: displayName,
+      role: u.role,
+      programme: programme,
+      photoUrl: u.photoUrl,
+      photoPath: u.photoPath,
+    );
+    _changes.add(null);
+  }
+
+  @override
+  Future<void> setPhoto(String uid, String localPath) async {
+    calls.add('setPhoto:$uid');
+    final u = _users[uid]!;
+    _users[uid] = AppUser(
+      uid: uid,
+      email: u.email,
+      displayName: u.displayName,
+      role: u.role,
+      programme: u.programme,
+      photoUrl: 'https://example.test/avatars/$uid/1.jpg',
+      photoPath: 'avatars/$uid/1.jpg',
+    );
     _changes.add(null);
   }
 }

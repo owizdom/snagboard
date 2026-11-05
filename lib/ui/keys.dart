@@ -44,15 +44,21 @@ abstract final class K {
   static const listError = ValueKey('list.error');
   static const listRetry = ValueKey('list.retry');
   static const listEmpty = ValueKey('list.empty');
-  static ValueKey<String> ribbonSegment(StatusGroup g) => ValueKey('ribbon.${g.name}');
-  static ValueKey<String> categoryChip(IncidentCategory c) => ValueKey('chip.${c.name}');
+  static ValueKey<String> ribbonSegment(StatusGroup g) =>
+      ValueKey('ribbon.${g.name}');
+  static ValueKey<String> categoryChip(IncidentCategory c) =>
+      ValueKey('chip.${c.name}');
   static ValueKey<String> ticket(String id) => ValueKey('ticket.$id');
-  static ValueKey<String> ticketStamp(String id) => ValueKey('ticket.$id.stamp');
+  static ValueKey<String> ticketStamp(String id) =>
+      ValueKey('ticket.$id.stamp');
 
   // File a snag
-  static ValueKey<String> categoryRow(IncidentCategory c) => ValueKey('file.category.${c.name}');
-  static ValueKey<String> urgencyOption(Urgency u) => ValueKey('file.urgency.${u.name}');
-  static ValueKey<String> locationOption(String name) => ValueKey('file.location.$name');
+  static ValueKey<String> categoryRow(IncidentCategory c) =>
+      ValueKey('file.category.${c.name}');
+  static ValueKey<String> urgencyOption(Urgency u) =>
+      ValueKey('file.urgency.${u.name}');
+  static ValueKey<String> locationOption(String name) =>
+      ValueKey('file.location.$name');
   static const spot = ValueKey('file.spot');
   static const title = ValueKey('file.title');
   static const description = ValueKey('file.description');
@@ -66,14 +72,18 @@ abstract final class K {
   static const submitProgress = ValueKey('file.progress');
   static const safetyNotice = ValueKey('file.safetyNotice');
   static const similarList = ValueKey('file.similar');
-  static ValueKey<String> similarAffects(String id) => ValueKey('file.similar.$id.affects');
-  static const fieldError = ValueKey('file.fieldError'); // category/location error text
+  static ValueKey<String> similarAffects(String id) =>
+      ValueKey('file.similar.$id.affects');
+  static const fieldError = ValueKey(
+    'file.fieldError',
+  ); // category/location error text
 
   // Details
   static const detailStamp = ValueKey('detail.stamp');
   static const detailTrack = ValueKey('detail.track');
   static const detailPhoto = ValueKey('detail.photo');
-  static ValueKey<String> moveTo(IncidentStatus s) => ValueKey('detail.moveTo.${s.name}');
+  static ValueKey<String> moveTo(IncidentStatus s) =>
+      ValueKey('detail.moveTo.${s.name}');
   static const statusNote = ValueKey('detail.note');
   static const confirmMove = ValueKey('detail.confirmMove');
   static const affectsToggle = ValueKey('detail.affects');
@@ -85,4 +95,16 @@ abstract final class K {
   // Profile
   static const signOut = ValueKey('me.signOut');
   static const roleStamp = ValueKey('me.role');
+  static const avatar = ValueKey('me.avatar');
+  static const programme = ValueKey('me.programme');
+  static const editProfile = ValueKey('me.edit');
+  static ValueKey<String> summary(String name) =>
+      ValueKey('me.summary.$name'); // total, open, active, resolved
+  static const recentList = ValueKey('me.recent');
+  static const editName = ValueKey('edit.name');
+  static const editProgramme = ValueKey('edit.programme'); // dropdown
+  static ValueKey<String> programmeOption(String name) =>
+      ValueKey('edit.programme.$name');
+  static const editPhoto = ValueKey('edit.photo');
+  static const editSave = ValueKey('edit.save');
 }

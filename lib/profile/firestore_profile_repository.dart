@@ -19,4 +19,15 @@ class FirestoreProfileRepository implements ProfileRepository {
   Future<void> create(AppUser user) =>
       _doc(user.uid)
           .set({...user.toMap(), 'createdAt': FieldValue.serverTimestamp()});
+
+  @override
+  Future<void> update(
+    String uid, {
+    required String displayName,
+    String? programme,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<void> setPhoto(String uid, String localPath) =>
+      throw UnimplementedError();
 }

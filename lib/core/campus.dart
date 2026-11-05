@@ -14,3 +14,22 @@ const campusLocations = [
   'Parking',
   'Outdoor Grounds',
 ];
+
+/// Degrees a student can pick on their profile.
+const studentProgrammes = [
+  'BSc Software Engineering',
+  'BSc Entrepreneurial Leadership',
+  'BSc International Business & Trade',
+  'Other',
+];
+
+/// Departments a staff member can pick on their profile.
+const staffDepartments = [
+  'Facilities',
+  'IT Support',
+  'Campus Security',
+  'Student Life',
+  'Residence Life',
+  'Administration',
+  'Other',
+];
