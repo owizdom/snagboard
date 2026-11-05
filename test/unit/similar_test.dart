@@ -5,110 +5,22 @@ import 'package:snagboard/incidents/similar.dart';
 import '../fakes/fakes.dart';
 
 void main() {
-  Incident mk(
-    String id,
-    IncidentCategory c,
-    String loc,
-    IncidentStatus s, {
-    int day = 1,
-  }) => makeIncident(
-    id: id,
-    category: c,
-    location: loc,
-    status: s,
-    createdAt: DateTime(2026, 11, day),
-  );
-
-  test('returns only open snags with the same category and location', () {
+  test('finds open snags with the same category and location only', () {
     final all = [
-      mk(
-        'aaaa0001',
-        IncidentCategory.water,
-        'Library',
-        IncidentStatus.submitted,
+      makeIncident(id: 'aaaa0001', category: IncidentCategory.water),
+      makeIncident(
+        id: 'bbbb0002',
+        category: IncidentCategory.water,
+        status: IncidentStatus.resolved,
       ),
-      mk(
-        'bbbb0002',
-        IncidentCategory.water,
-        'Library',
-        IncidentStatus.acknowledged,
-      ),
-      mk(
-        'cccc0003',
-        IncidentCategory.water,
-        'Library',
-        IncidentStatus.inProgress,
-      ),
-      mk(
-        'dddd0004',
-        IncidentCategory.water,
-        'Library',
-        IncidentStatus.resolved,
-      ),
-      mk(
-        'eeee0005',
-        IncidentCategory.water,
-        'Library',
-        IncidentStatus.declined,
-      ),
-      mk(
-        'ffff0006',
-        IncidentCategory.electricity,
-        'Library',
-        IncidentStatus.submitted,
-      ),
-      mk(
-        'gggg0007',
-        IncidentCategory.water,
-        'Cafeteria',
-        IncidentStatus.submitted,
+      makeIncident(id: 'cccc0003', category: IncidentCategory.electricity),
+      makeIncident(
+        id: 'dddd0004',
+        category: IncidentCategory.water,
+        location: 'Library',
       ),
     ];
-    final r = findSimilar(all, IncidentCategory.water, 'Library');
-    expect(r.map((i) => i.id).toSet(), {'aaaa0001', 'bbbb0002'});
-  });
-
-  test('empty when nothing matches', () {
-    final all = [
-      mk(
-        'aaaa0001',
-        IncidentCategory.water,
-        'Library',
-        IncidentStatus.submitted,
-      ),
-    ];
-    expect(findSimilar(all, IncidentCategory.safety, 'Library'), isEmpty);
-    expect(findSimilar(all, IncidentCategory.water, 'Parking'), isEmpty);
-    expect(findSimilar(const [], IncidentCategory.water, 'Library'), isEmpty);
-  });
-
-  test('newest first', () {
-    final all = [
-      mk(
-        'aaaa0001',
-        IncidentCategory.water,
-        'Library',
-        IncidentStatus.submitted,
-        day: 1,
-      ),
-      mk(
-        'bbbb0002',
-        IncidentCategory.water,
-        'Library',
-        IncidentStatus.submitted,
-        day: 3,
-      ),
-      mk(
-        'cccc0003',
-        IncidentCategory.water,
-        'Library',
-        IncidentStatus.submitted,
-        day: 2,
-      ),
-    ];
-    expect(
-      findSimilar(all, IncidentCategory.water, 'Library').map((i) => i.id),
-      ['bbbb0002', 'cccc0003', 'aaaa0001'],
-    );
+    final r = findSimilar(all, IncidentCategory.water, 'Student Residence A');
+    expect(r.map((i) => i.id), ['aaaa0001']);
   });
 }

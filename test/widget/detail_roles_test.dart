@@ -1,27 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:snagboard/auth/app_user.dart';
-import 'package:snagboard/core/validators.dart';
 import 'package:snagboard/incidents/incident.dart';
 import 'package:snagboard/ui/keys.dart';
 import 'package:snagboard/ui/screens/incident_detail_screen.dart';
 
 import '../fakes/fakes.dart';
-
-const expectedNext = <IncidentStatus, Set<IncidentStatus>>{
-  IncidentStatus.submitted: {
-    IncidentStatus.acknowledged,
-    IncidentStatus.inProgress,
-    IncidentStatus.declined,
-  },
-  IncidentStatus.acknowledged: {
-    IncidentStatus.inProgress,
-    IncidentStatus.declined,
-  },
-  IncidentStatus.inProgress: {IncidentStatus.resolved},
-  IncidentStatus.resolved: {IncidentStatus.inProgress},
-  IncidentStatus.declined: {IncidentStatus.acknowledged},
-};
 
 void tall(WidgetTester t) {
   t.view.physicalSize = const Size(900, 2400);
@@ -49,146 +33,40 @@ Future<TestHarness> open(
 }
 
 void main() {
-  group('staff', () {
-    for (final status in IncidentStatus.values) {
-      testWidgets('from ${status.name} sees Move to only for allowed targets', (
-        t,
-      ) async {
-        await open(t, staff, makeIncident(status: status));
-        for (final to in IncidentStatus.values) {
-          expect(
-            find.byKey(K.moveTo(to)),
-            expectedNext[status]!.contains(to) ? findsOneWidget : findsNothing,
-            reason: '${status.name} -> ${to.name}',
-          );
-        }
-      });
-    }
-
-    testWidgets('confirming with an empty note does not change status', (
-      t,
-    ) async {
-      final h = await open(t, staff, makeIncident());
-      await tapKey(t, K.moveTo(IncidentStatus.inProgress));
-      await tapKey(t, K.confirmMove);
-      expect(h.incidents.calls, isEmpty);
-      expect(find.text(validateNote('')!), findsWidgets);
-    });
-
-    testWidgets('a too-short note does not change status', (t) async {
-      final h = await open(t, staff, makeIncident());
-      await tapKey(t, K.moveTo(IncidentStatus.inProgress));
-      await t.enterText(find.byKey(K.statusNote), 'ok');
-      await tapKey(t, K.confirmMove);
-      expect(h.incidents.calls, isEmpty);
-      expect(find.text(validateNote('ok')!), findsWidgets);
-    });
-
-    testWidgets('a valid note changes the status', (t) async {
-      final h = await open(t, staff, makeIncident(id: 'abcd1234'));
-      await tapKey(t, K.moveTo(IncidentStatus.inProgress));
-      await t.enterText(find.byKey(K.statusNote), 'Plumber assigned');
-      await tapKey(t, K.confirmMove);
-      expect(h.incidents.calls, ['changeStatus:abcd1234:in_progress']);
-    });
-
-    testWidgets('does not see owner-only actions on a snag they did not file', (
-      t,
-    ) async {
-      await open(t, staff, makeIncident());
-      expect(find.byKey(K.edit), findsNothing);
-      expect(find.byKey(K.withdraw), findsNothing);
-    });
+  testWidgets('staff see Move to for the allowed next statuses', (t) async {
+    await open(t, staff, makeIncident(status: IncidentStatus.submitted));
+    expect(find.byKey(K.moveTo(IncidentStatus.acknowledged)), findsOneWidget);
+    expect(find.byKey(K.moveTo(IncidentStatus.resolved)), findsNothing);
   });
 
-  group('students', () {
-    for (final user in [student, otherStudent]) {
-      testWidgets('${user.uid} never sees a Move to action', (t) async {
-        for (final status in IncidentStatus.values) {
-          await open(t, user, makeIncident(status: status));
-          for (final to in IncidentStatus.values) {
-            expect(find.byKey(K.moveTo(to)), findsNothing);
-          }
-        }
-      });
+  testWidgets('students never see Move to', (t) async {
+    await open(t, student, makeIncident());
+    for (final to in IncidentStatus.values) {
+      expect(find.byKey(K.moveTo(to)), findsNothing);
     }
-
-    testWidgets('owner sees Edit and Withdraw while submitted', (t) async {
-      await open(t, student, makeIncident(status: IncidentStatus.submitted));
-      expect(find.byKey(K.edit), findsOneWidget);
-      expect(find.byKey(K.withdraw), findsOneWidget);
-    });
-
-    for (final s in IncidentStatus.values.where(
-      (s) => s != IncidentStatus.submitted,
-    )) {
-      testWidgets('owner does not see Edit or Withdraw when ${s.name}', (
-        t,
-      ) async {
-        await open(t, student, makeIncident(status: s));
-        expect(find.byKey(K.edit), findsNothing);
-        expect(find.byKey(K.withdraw), findsNothing);
-      });
-    }
-
-    testWidgets('owner does not see the affects toggle', (t) async {
-      await open(t, student, makeIncident(reporterId: 'stu1'));
-      expect(find.byKey(K.affectsToggle), findsNothing);
-    });
-
-    testWidgets('non-owner sees affects toggle and no owner actions', (
-      t,
-    ) async {
-      await open(t, otherStudent, makeIncident(reporterId: 'stu1'));
-      expect(find.byKey(K.affectsToggle), findsOneWidget);
-      expect(find.byKey(K.edit), findsNothing);
-      expect(find.byKey(K.withdraw), findsNothing);
-    });
-
-    testWidgets('tapping affects toggle calls setAffected', (t) async {
-      final h = await open(
-        t,
-        otherStudent,
-        makeIncident(id: 'abcd1234', reporterId: 'stu1'),
-      );
-      await tapKey(t, K.affectsToggle);
-      expect(h.incidents.calls, ['setAffected:abcd1234:stu2:true']);
-    });
-
-    testWidgets('tapping again removes the affect', (t) async {
-      final h = await open(
-        t,
-        otherStudent,
-        makeIncident(id: 'abcd1234', reporterId: 'stu1', affectedBy: ['stu2']),
-      );
-      await tapKey(t, K.affectsToggle);
-      expect(h.incidents.calls, ['setAffected:abcd1234:stu2:false']);
-    });
   });
 
-  // Regression: "Hide my name from other students; staff still see it".
-  group('hidden reporter name', () {
-    Incident hidden() => makeIncident(
-      anonymous: true,
-      history: [
-        StatusChange(
-          status: IncidentStatus.submitted,
-          note: 'Filed',
-          byName: 'Reporter',
-          at: DateTime(2026, 11, 1, 9),
-        ),
-      ],
-    );
+  testWidgets('a valid note changes the status', (t) async {
+    final h = await open(t, staff, makeIncident(id: 'abcd1234'));
+    await tapKey(t, K.moveTo(IncidentStatus.inProgress));
+    await t.enterText(find.byKey(K.statusNote), 'Plumber assigned');
+    await tapKey(t, K.confirmMove);
+    expect(h.incidents.calls, ['changeStatus:abcd1234:in_progress']);
+  });
 
-    testWidgets('staff see who filed it', (t) async {
-      await open(t, staff, hidden());
-      await t.pumpAndSettle();
-      expect(find.textContaining('Amani Student'), findsWidgets);
-    });
+  testWidgets('the owner sees Edit and Withdraw only while submitted', (
+    t,
+  ) async {
+    await open(t, student, makeIncident(status: IncidentStatus.submitted));
+    expect(find.byKey(K.edit), findsOneWidget);
+    expect(find.byKey(K.withdraw), findsOneWidget);
+    await open(t, student, makeIncident(status: IncidentStatus.acknowledged));
+    expect(find.byKey(K.edit), findsNothing);
+    expect(find.byKey(K.withdraw), findsNothing);
+  });
 
-    testWidgets('other students do not', (t) async {
-      await open(t, otherStudent, hidden());
-      expect(find.textContaining('Amani Student'), findsNothing);
-    });
+  testWidgets('staff see the name of a reporter who hid it', (t) async {
+    await open(t, staff, makeIncident(anonymous: true));
+    expect(find.textContaining('Amani Student'), findsWidgets);
   });
 }

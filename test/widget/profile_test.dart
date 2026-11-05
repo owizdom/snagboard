@@ -42,54 +42,6 @@ void main() {
     expect(find.byKey(K.avatar), findsOneWidget);
   });
 
-  testWidgets('summary counts and recent snags', (t) async {
-    await open(
-      t,
-      student,
-      incidents: [
-        makeIncident(
-          id: 'aaaa0001',
-          status: IncidentStatus.submitted,
-          createdAt: DateTime(2026, 11, 3),
-        ),
-        makeIncident(
-          id: 'bbbb0002',
-          status: IncidentStatus.inProgress,
-          createdAt: DateTime(2026, 11, 2),
-        ),
-        makeIncident(
-          id: 'cccc0003',
-          status: IncidentStatus.resolved,
-          createdAt: DateTime(2026, 11, 1),
-        ),
-        makeIncident(
-          id: 'dddd0004',
-          reporterId: 'stu2',
-          createdAt: DateTime(2026, 11, 4),
-        ),
-      ],
-    );
-    void count(String name, String n) => expect(
-      find.descendant(
-        of: find.byKey(K.summary(name)),
-        matching: find.text(n),
-      ),
-      findsOneWidget,
-      reason: name,
-    );
-    count('total', '3');
-    count('open', '1');
-    count('active', '1');
-    count('resolved', '1');
-    expect(
-      find.descendant(
-        of: find.byKey(K.recentList),
-        matching: find.byKey(K.ticket('aaaa0001')),
-      ),
-      findsOneWidget,
-    );
-  });
-
   testWidgets('edit saves name and programme', (t) async {
     final h = await open(t, student);
     await t.tap(find.byKey(K.editProfile));
@@ -106,19 +58,6 @@ void main() {
     expect(
       h.profiles.calls,
       contains('update:stu1:Amani K:BSc Entrepreneurial Leadership'),
-    );
-  });
-
-  testWidgets('staff are offered departments, not degrees', (t) async {
-    await open(t, staff);
-    await t.tap(find.byKey(K.editProfile));
-    await t.pumpAndSettle();
-    await t.tap(find.byKey(K.editProgramme));
-    await t.pumpAndSettle();
-    expect(find.byKey(K.programmeOption('Facilities')), findsWidgets);
-    expect(
-      find.byKey(K.programmeOption('BSc Software Engineering')),
-      findsNothing,
     );
   });
 

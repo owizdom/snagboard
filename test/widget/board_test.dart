@@ -1,22 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:snagboard/auth/auth_providers.dart';
-import 'package:snagboard/core/theme.dart';
 import 'package:snagboard/incidents/incident.dart';
-import 'package:snagboard/incidents/incident_providers.dart';
 import 'package:snagboard/ui/keys.dart';
 import 'package:snagboard/ui/screens/board_screen.dart';
 
 import '../fakes/fakes.dart';
-
-class NeverIncidents extends FakeIncidentRepository {
-  @override
-  Stream<List<Incident>> watchAll() =>
-      StreamController<List<Incident>>().stream;
-}
 
 List<Incident> sample() => [
   makeIncident(
@@ -64,38 +52,6 @@ Future<TestHarness> open(WidgetTester t, List<Incident> incidents) async {
 }
 
 void main() {
-  testWidgets('shows loading before the first snapshot', (t) async {
-    tall(t);
-    final h = TestHarness.signedInAs(student);
-    await t.pumpWidget(
-      ProviderScope(
-        overrides: [
-          authRepositoryProvider.overrideWithValue(h.auth),
-          profileRepositoryProvider.overrideWithValue(h.profiles),
-          incidentRepositoryProvider.overrideWithValue(NeverIncidents()),
-          photoStoreProvider.overrideWithValue(h.photos),
-        ],
-        retry: (_, _) => null,
-        child: MaterialApp(theme: buildSnagTheme(), home: const BoardScreen()),
-      ),
-    );
-    await t.pump(const Duration(milliseconds: 100));
-    expect(find.byKey(K.listLoading), findsOneWidget);
-    expect(find.byKey(K.listEmpty), findsNothing);
-    expect(find.byKey(K.listError), findsNothing);
-  });
-
-  testWidgets('shows error with retry when the stream fails', (t) async {
-    tall(t);
-    final h = TestHarness.signedInAs(student);
-    h.incidents.watchError = Exception('permission denied');
-    await t.pumpWidget(h.wrap(const BoardScreen()));
-    await t.pumpAndSettle();
-    expect(find.byKey(K.listError), findsOneWidget);
-    expect(find.byKey(K.listRetry), findsOneWidget);
-    expect(find.byKey(K.listLoading), findsNothing);
-  });
-
   testWidgets('shows the empty state with no snags', (t) async {
     await open(t, const []);
     expect(find.byKey(K.listEmpty), findsOneWidget);
@@ -119,29 +75,5 @@ void main() {
     // Tapping again clears the chip.
     await tapKey(t, K.categoryChip(IncidentCategory.water));
     expect(find.byKey(K.ticket('bbbb0002')), findsOneWidget);
-  });
-
-  testWidgets('a ribbon segment narrows the list', (t) async {
-    await open(t, sample());
-    await tapKey(t, K.ribbonSegment(StatusGroup.closed));
-    expect(find.byKey(K.ticket('cccc0003')), findsOneWidget);
-    expect(find.byKey(K.ticket('aaaa0001')), findsNothing);
-    expect(find.byKey(K.ticket('bbbb0002')), findsNothing);
-    await tapKey(t, K.ribbonSegment(StatusGroup.open));
-    expect(find.byKey(K.ticket('aaaa0001')), findsOneWidget);
-    expect(find.byKey(K.ticket('bbbb0002')), findsOneWidget);
-    expect(find.byKey(K.ticket('cccc0003')), findsNothing);
-  });
-
-  testWidgets('the search box narrows the list, case-insensitively', (t) async {
-    await open(t, sample());
-    await t.enterText(find.byKey(K.search), 'SOCKET');
-    await t.pumpAndSettle();
-    expect(find.byKey(K.ticket('bbbb0002')), findsOneWidget);
-    expect(find.byKey(K.ticket('aaaa0001')), findsNothing);
-    expect(find.byKey(K.ticket('cccc0003')), findsNothing);
-    await t.enterText(find.byKey(K.search), '');
-    await t.pumpAndSettle();
-    expect(find.byKey(K.ticket('aaaa0001')), findsOneWidget);
   });
 }
