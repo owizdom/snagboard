@@ -68,8 +68,22 @@ Future<void> pumpUntilFound(
   }
 }
 
+/// Waits for [key]; if it is still not built (below the fold of a lazy
+/// list), scrolls the last scrollable on screen down until it is.
+Future<void> reveal(WidgetTester t, Key key) async {
+  try {
+    await pumpUntilFound(t, find.byKey(key), timeout: const Duration(seconds: 5));
+  } on TestFailure {
+    await t.scrollUntilVisible(
+      find.byKey(key),
+      300,
+      scrollable: find.byType(Scrollable).last,
+    );
+  }
+}
+
 Future<void> tapKey(WidgetTester t, Key key) async {
-  await pumpUntilFound(t, find.byKey(key));
+  await reveal(t, key);
   await t.ensureVisible(find.byKey(key));
   await t.pump(const Duration(milliseconds: 100));
   await t.tap(find.byKey(key));
@@ -77,7 +91,7 @@ Future<void> tapKey(WidgetTester t, Key key) async {
 }
 
 Future<void> enter(WidgetTester t, Key key, String text) async {
-  await pumpUntilFound(t, find.byKey(key));
+  await reveal(t, key);
   await t.ensureVisible(find.byKey(key));
   await t.pump(const Duration(milliseconds: 100));
   await t.enterText(find.byKey(key), text);
@@ -110,7 +124,15 @@ Future<void> pumpUntilTextOf(
       final now = find.byKey(key).evaluate().isEmpty
           ? '<no widget>'
           : textOf(t, key);
-      throw TestFailure('timed out waiting on text of $key, last: "$now"');
+      final texts = find
+          .byType(Text)
+          .evaluate()
+          .map((e) => (e.widget as Text).data)
+          .whereType<String>()
+          .join(' | ');
+      throw TestFailure(
+        'timed out waiting on text of $key, last: "$now". Visible text: $texts',
+      );
     }
     await t.pump(const Duration(milliseconds: 200));
   }
@@ -233,6 +255,9 @@ void main() {
     await tapKey(t, K.moveTo(IncidentStatus.inProgress));
     await enter(t, K.statusNote, note);
     await tapKey(t, K.confirmMove);
+    // The stamp sits at the top of a lazy list; scroll back up to it.
+    await t.fling(find.byType(Scrollable).last, const Offset(0, 3000), 4000);
+    await pumpFor(t);
     await pumpUntilTextOf(
       t,
       K.detailStamp,
@@ -242,6 +267,8 @@ void main() {
     );
 
     // 6. Student signs back in and sees the new stamp and the note.
+    await t.pageBack();
+    await pumpFor(t);
     await signOut(t);
     await enter(t, K.signInEmail, studentEmail);
     await enter(t, K.signInPassword, _password);
@@ -260,7 +287,7 @@ void main() {
     await t.pump(const Duration(milliseconds: 100));
     await t.tap(find.byKey(K.ticket(snagId)));
     await pumpFor(t);
-    await pumpUntilFound(t, find.byKey(K.detailTrack));
+    await reveal(t, K.detailTrack);
     await pumpUntilFound(
       t,
       find.descendant(

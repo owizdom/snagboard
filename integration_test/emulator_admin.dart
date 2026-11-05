@@ -24,18 +24,19 @@ Never _fail(String what, http.Response r) =>
 
 /// Auth emulator uid for [email].
 Future<String> lookupUid(String email) async {
-  final r = await http.get(
-    Uri.parse('$_auth/emulator/v1/projects/$projectId/accounts'),
-    headers: _owner,
+  final r = await http.post(
+    Uri.parse(
+      '$_auth/identitytoolkit.googleapis.com/v1/projects/$projectId/accounts:lookup',
+    ),
+    headers: _json,
+    body: jsonEncode({
+      'email': [email.toLowerCase()],
+    }),
   );
-  if (r.statusCode != 200) _fail('list accounts', r);
+  if (r.statusCode != 200) _fail('lookup $email', r);
   final users = (jsonDecode(r.body)['users'] as List?) ?? const [];
-  for (final u in users) {
-    if ((u['email'] as String?)?.toLowerCase() == email.toLowerCase()) {
-      return u['localId'] as String;
-    }
-  }
-  throw StateError('no emulator account for $email');
+  if (users.isEmpty) throw StateError('no emulator account for $email');
+  return users.first['localId'] as String;
 }
 
 /// Marks the account verified, as if the inbox link was clicked.
