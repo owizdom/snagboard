@@ -25,3 +25,10 @@ final currentUserProvider = StreamProvider<AppUser?>((ref) {
   }
   return ref.watch(profileRepositoryProvider).watch(session.uid);
 });
+
+/// The display name on any user's profile. Only staff may read other
+/// profiles, so only staff screens use this.
+final displayNameProvider = StreamProvider.family<String?, String>(
+  (ref, uid) =>
+      ref.watch(profileRepositoryProvider).watch(uid).map((u) => u?.displayName),
+);

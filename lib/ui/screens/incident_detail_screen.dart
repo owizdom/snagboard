@@ -46,21 +46,24 @@ class IncidentDetailScreen extends ConsumerWidget {
   }
 }
 
-class _Content extends StatelessWidget {
+class _Content extends ConsumerWidget {
   const _Content({required this.incident, required this.viewerIsStaff, required this.viewerId, required this.actions});
   final Incident incident;
   final bool viewerIsStaff;
   final String? viewerId;
   final Widget actions;
 
-  String get _filedBy {
+  /// Staff still see who filed a hidden-name snag; students never do.
+  String _filedBy(WidgetRef ref) {
     if (incident.reporterName != null) return incident.reporterName!;
     if (incident.reporterId == viewerId) return 'You (hidden from students)';
-    return viewerIsStaff ? 'Hidden by the reporter' : 'Hidden from students';
+    if (!viewerIsStaff) return 'Hidden from students';
+    final name = ref.watch(displayNameProvider(incident.reporterId)).value;
+    return '${name ?? 'Loading'} (hidden from students)';
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final i = incident;
     final spot = (i.spot == null || i.spot!.isEmpty) ? '' : ', ${i.spot}';
     return ListView(
@@ -76,7 +79,7 @@ class _Content extends StatelessWidget {
         _Meta('CATEGORY', '${i.category.code}  ${i.category.label}'),
         _Meta('PLACE', '${i.location}$spot'),
         _Meta('URGENCY', i.urgency.label),
-        _Meta('FILED BY', _filedBy),
+        _Meta('FILED BY', _filedBy(ref)),
         _Meta('FILED', formatDateTime(i.createdAt)),
         _Meta('AFFECTS', '${i.affectedBy.length}'),
         const SectionLabel('DESCRIPTION'),
