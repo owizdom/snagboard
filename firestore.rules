@@ -69,6 +69,21 @@ service cloud.firestore {
             && d.photoPath.matches('^incident_photos/' + request.auth.uid + '/.+'));
     }
 
+    // Programme is absent or null, or one of the student degrees or staff departments.
+    function validProgramme(v) {
+      return v == null
+        || v in ['BSc Software Engineering', 'BSc Entrepreneurial Leadership',
+                 'BSc International Business & Trade', 'Other',
+                 'Facilities', 'IT Support', 'Campus Security', 'Student Life',
+                 'Residence Life', 'Administration'];
+    }
+
+    // photoPath is null, or a string inside the caller's own avatars folder.
+    function validAvatarPath(v) {
+      return v == null
+        || (v is string && v.matches('^avatars/' + request.auth.uid + '/.+'));
+    }
+
     // ---------- status flow ----------
 
     // The transition table from the spec: which status may follow which.
@@ -173,11 +188,16 @@ service cloud.firestore {
         && request.resource.data.email == request.auth.token.email
         && isNow(request.resource.data.createdAt);
 
-      // Only displayName changes, and only by its owner.
+      // The owner edits only name, programme and photo. Role and email never change.
       allow update: if isAlu()
         && request.auth.uid == uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName'])
-        && request.resource.data.displayName is string;
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['displayName', 'programme', 'photoUrl', 'photoPath'])
+        && strBetween(request.resource.data.displayName, 2, 60)
+        && validProgramme(request.resource.data.get('programme', null))
+        && validAvatarPath(request.resource.data.get('photoPath', null))
+        && (request.resource.data.get('photoUrl', null) == null
+            || request.resource.data.photoUrl is string);
     }
 
     match /incidents/{incidentId} {

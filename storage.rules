@@ -11,6 +11,12 @@ service firebase.storage {
         && request.auth.token.email.lower().matches('^[^@]+@(alustudent|alueducation)[.]com$');
     }
 
+    // The upload is an image under 2 MB (avatars).
+    function isTinyImage() {
+      return request.resource.size < 2 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
     // The upload is an image under 5 MB.
     function isSmallImage() {
       return request.resource.size < 5 * 1024 * 1024
@@ -25,6 +31,16 @@ service firebase.storage {
       allow create, update: if isAlu() && request.auth.uid == uid && isSmallImage();
 
       // Delete only from your own folder.
+      allow delete: if isAlu() && request.auth.uid == uid;
+    }
+
+    match /avatars/{uid}/{fileName} {
+      // Any verified ALU user can see avatars.
+      allow read: if isAlu();
+
+      // Only the owner writes or replaces their own avatar.
+      allow create, update: if isAlu() && request.auth.uid == uid && isTinyImage();
+
       allow delete: if isAlu() && request.auth.uid == uid;
     }
 
