@@ -1,7 +1,34 @@
 rules_version = '2';
-// Placeholder until track C: denies everything.
+
+// Snagboard Storage rules: incident photos only, one folder per uid.
 service firebase.storage {
   match /b/{bucket}/o {
+
+    // Signed in, email verified, and an ALU student or staff address.
+    function isAlu() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower().matches('^[^@]+@(alustudent|alueducation)[.]com$');
+    }
+
+    // The upload is an image under 5 MB.
+    function isSmallImage() {
+      return request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    match /incident_photos/{uid}/{fileName} {
+      // Anyone ALU can see photos on the board.
+      allow read: if isAlu();
+
+      // Upload or replace only inside your own folder.
+      allow create, update: if isAlu() && request.auth.uid == uid && isSmallImage();
+
+      // Delete only from your own folder.
+      allow delete: if isAlu() && request.auth.uid == uid;
+    }
+
+    // Everything else is closed.
     match /{allPaths=**} {
       allow read, write: if false;
     }

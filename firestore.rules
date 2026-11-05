@@ -1,7 +1,194 @@
 rules_version = '2';
-// Placeholder until track C: denies everything except the todo app.
+
+// Snagboard Firestore rules. Read top to bottom: helpers first, then one block per collection.
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // ---------- who is calling ----------
+
+    // Signed in, email verified, and an ALU student or staff address (plus-addressing allowed).
+    function isAlu() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower().matches('^[^@]+@(alustudent|alueducation)[.]com$');
+    }
+
+    // The caller's users/{uid} document says role == 'staff' (set only in the Console).
+    function isStaff() {
+      let path = /databases/$(database)/documents/users/$(request.auth.uid);
+      return exists(path) && get(path).data.role == 'staff';
+    }
+
+    // ---------- small value checks ----------
+
+    // A string whose length is within [lo, hi].
+    function strBetween(v, lo, hi) {
+      return v is string && v.size() >= lo && v.size() <= hi;
+    }
+
+    // Allowed wire values for category.
+    function validCategory(v) {
+      return v in ['facilities', 'water', 'electricity', 'furniture', 'sanitation', 'safety', 'internet', 'other'];
+    }
+
+    // Allowed wire values for urgency.
+    function validUrgency(v) {
+      return v in ['low', 'normal', 'urgent'];
+    }
+
+    // True when the document is being written at the server's current time.
+    function isNow(v) {
+      return v is timestamp && v == request.time;
+    }
+
+    // Anonymous hides the name (null); otherwise a 2-60 char name is required.
+    function nameMatchesAnonymity(d) {
+      return d.anonymous is bool
+        && (d.anonymous == true ? d.reporterName == null : strBetween(d.reporterName, 2, 60));
+    }
+
+    // The user-editable fields of an incident are inside their bounds.
+    function detailsValid(d) {
+      return strBetween(d.title, 5, 80)
+        && strBetween(d.description, 15, 1000)
+        && strBetween(d.location, 1, 60)
+        && (d.spot == null || strBetween(d.spot, 0, 60))
+        && validCategory(d.category)
+        && validUrgency(d.urgency)
+        && nameMatchesAnonymity(d);
+    }
+
+    // photoUrl and photoPath are both null, or both strings with the path in the caller's own folder.
+    function photoValid(d) {
+      return (d.photoUrl == null && d.photoPath == null)
+        || (d.photoUrl is string && d.photoPath is string
+            && d.photoPath.matches('^incident_photos/' + request.auth.uid + '/.+'));
+    }
+
+    // ---------- status flow ----------
+
+    // The transition table from the spec: which status may follow which.
+    function canTransition(from, to) {
+      return (from == 'submitted' && to in ['acknowledged', 'in_progress', 'declined'])
+        || (from == 'acknowledged' && to in ['in_progress', 'declined'])
+        || (from == 'in_progress' && to == 'resolved')
+        || (from == 'resolved' && to == 'in_progress')
+        || (from == 'declined' && to == 'acknowledged');
+    }
+
+    // A history entry has exactly status, note, byName, at.
+    function entryShape(e) {
+      return e is map
+        && e.keys().hasOnly(['status', 'note', 'byName', 'at'])
+        && e.keys().hasAll(['status', 'note', 'byName', 'at'])
+        && e.byName is string
+        && e.at is timestamp;
+    }
+
+    // ---------- the incident operations ----------
+
+    // A brand new incident: exact keys, own reporterId, submitted, one history entry, server times.
+    function validCreate(d) {
+      return d.keys().hasOnly(['title', 'description', 'category', 'location', 'spot', 'urgency', 'status',
+                               'photoUrl', 'photoPath', 'reporterId', 'reporterName', 'anonymous',
+                               'affectedBy', 'history', 'createdAt', 'updatedAt'])
+        && d.keys().hasAll(['title', 'description', 'category', 'location', 'spot', 'urgency', 'status',
+                            'photoUrl', 'photoPath', 'reporterId', 'reporterName', 'anonymous',
+                            'affectedBy', 'history', 'createdAt', 'updatedAt'])
+        && d.reporterId == request.auth.uid
+        && d.status == 'submitted'
+        && d.affectedBy == []
+        && isNow(d.createdAt)
+        && isNow(d.updatedAt)
+        && d.history is list
+        && d.history.size() == 1
+        && entryShape(d.history[0])
+        && d.history[0].status == 'submitted'
+        && d.history[0].note is string
+        && detailsValid(d)
+        && photoValid(d);
+    }
+
+    // The owner edits details while the snag is still submitted; nothing else moves.
+    function isOwnerEdit() {
+      return resource.data.reporterId == request.auth.uid
+        && resource.data.status == 'submitted'
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['title', 'description', 'category', 'location', 'spot', 'urgency',
+                       'anonymous', 'reporterName', 'updatedAt'])
+        && isNow(request.resource.data.updatedAt)
+        && detailsValid(request.resource.data);
+    }
+
+    // Staff move the status: only status, history, updatedAt change; one valid history entry is appended.
+    function isStaffStatusChange() {
+      let oldD = resource.data;
+      let newD = request.resource.data;
+      return isStaff()
+        && newD.diff(oldD).affectedKeys().hasOnly(['status', 'history', 'updatedAt'])
+        && canTransition(oldD.status, newD.status)
+        && isNow(newD.updatedAt)
+        && newD.history is list
+        && newD.history.size() == oldD.history.size() + 1
+        && newD.history[0:oldD.history.size()] == oldD.history
+        && entryShape(newD.history[oldD.history.size()])
+        && newD.history[oldD.history.size()].status == newD.status
+        && strBetween(newD.history[oldD.history.size()].note, 3, 280);
+    }
+
+    // Anyone ALU toggles only their own uid in affectedBy: add one or remove one, nothing else changes.
+    function isAffectsMeToo() {
+      let oldL = resource.data.affectedBy;
+      let newL = request.resource.data.affectedBy;
+      let me = request.auth.uid;
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['affectedBy'])
+        && newL is list
+        && ((newL.size() == oldL.size() + 1
+              && newL.toSet().difference(oldL.toSet()) == [me].toSet()
+              && oldL.toSet().difference(newL.toSet()).size() == 0)
+            || (newL.size() == oldL.size() - 1
+              && oldL.toSet().difference(newL.toSet()) == [me].toSet()
+              && newL.toSet().difference(oldL.toSet()).size() == 0));
+    }
+
+    // ---------- collections ----------
+
+    match /users/{uid} {
+      // Read your own profile; staff read any.
+      allow read: if isAlu() && (request.auth.uid == uid || isStaff());
+
+      // Create your own profile as a student, with your own token email and a server time.
+      allow create: if isAlu()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['displayName', 'email', 'role', 'createdAt'])
+        && request.resource.data.keys().hasAll(['displayName', 'email', 'role', 'createdAt'])
+        && request.resource.data.displayName is string
+        && request.resource.data.role == 'student'
+        && request.resource.data.email == request.auth.token.email
+        && isNow(request.resource.data.createdAt);
+
+      // Only displayName changes, and only by its owner.
+      allow update: if isAlu()
+        && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName'])
+        && request.resource.data.displayName is string;
+    }
+
+    match /incidents/{incidentId} {
+      // Every verified ALU user browses the board.
+      allow read: if isAlu();
+
+      allow create: if isAlu() && validCreate(request.resource.data);
+
+      allow update: if isAlu() && (isOwnerEdit() || isStaffStatusChange() || isAffectsMeToo());
+
+      // The owner withdraws a submitted snag; staff delete any.
+      allow delete: if isAlu()
+        && ((resource.data.reporterId == request.auth.uid && resource.data.status == 'submitted')
+            || isStaff());
+    }
+
+    // The existing todo app relies on this block staying open.
     match /todos/{todoId} {
       allow read, write: if true;
     }
