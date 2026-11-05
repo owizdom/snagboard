@@ -52,11 +52,6 @@ class TicketCard extends StatelessWidget {
                             Text('URGENT', style: Snag.label(size: 11, color: Snag.danger)),
                           ],
                           const Spacer(),
-                          if (i.photoUrl != null)
-                            const Padding(
-                              padding: EdgeInsets.only(right: 8),
-                              child: Icon(Icons.photo_camera_outlined, size: 16, semanticLabel: 'Has a photo'),
-                            ),
                           StatusStamp(key: K.ticketStamp(i.id), status: i.status),
                         ],
                       ),
@@ -76,6 +71,26 @@ class TicketCard extends StatelessWidget {
                   ),
                 ),
               ),
+              // The snag's photo, when it has one.
+              if (i.photoUrl != null)
+                Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Snag.ink, width: Snag.outline),
+                      borderRadius: BorderRadius.circular(Snag.radius),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Image.network(
+                      i.photoUrl!,
+                      fit: BoxFit.cover,
+                      semanticLabel: 'Photo of the snag',
+                      errorBuilder: (_, _, _) => const Icon(Icons.photo_camera_outlined),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
