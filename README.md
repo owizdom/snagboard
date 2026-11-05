@@ -1,10 +1,20 @@
 # Snagboard
 
+<img src="readme/logo.png" alt="Snagboard" width="320">
+
 Campus incident reporting for ALU. A snag is anything on campus that needs fixing: a dry tap, a dead socket, a broken chair, a safety hazard. Students file a snag with an optional photo and follow it on a shared campus board. Staff move each snag along a fixed status track and leave a note at every step, so the student always knows what is happening.
 
 Built with Flutter, Riverpod, Firebase Authentication, Cloud Firestore and Firebase Storage. Runs on the iOS simulator (tested on iPhone 17 Pro, iOS 26.5).
 
 Demo video: VIDEO_URL
+
+![Snagboard screens](readme/screens.png)
+
+## Try it
+
+- Students: sign up in the app with your own ALU email (`name@alustudent.com`). Firebase sends a verification link to that inbox; tap it, return to the app and tap I've verified.
+- Staff: anyone with an `@alueducation.com` address can sign up the same way, and becomes staff once a campus admin sets their role.
+- Staff test account, already verified and set to staff: `s.stafftest@alueducation.com`, password `staff1234`. Sign in with it to see the staff queue and move a snag along its status track.
 
 ## Features
 
