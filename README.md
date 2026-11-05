@@ -13,7 +13,7 @@ Demo video: VIDEO_URL
 ## Try it
 
 - Students: sign up in the app with your own ALU email (`name@alustudent.com`). Firebase sends a verification link to that inbox; tap it, return to the app and tap I've verified.
-- Staff: anyone with an `@alueducation.com` address can sign up the same way, and becomes staff once a campus admin sets their role.
+- Staff: sign up the same way with an `@alueducation.com` address and you are staff automatically after verifying.
 - Staff test account, already verified and set to staff: `s.stafftest@alueducation.com`, password `staff1234`. Sign in with it to see the staff queue and move a snag along its status track.
 
 ## Features
@@ -29,7 +29,7 @@ Demo video: VIDEO_URL
 
 ## Roles and access control
 
-Every account starts as a student. A campus admin appoints staff by setting `role` to `staff` on the user's document in the Firestore console; the app cannot grant it. Firestore and Storage security rules enforce every permission on the server: only staff can change a status, students can only edit their own submitted snags, nobody can rewrite the history, and unverified or non-ALU accounts cannot read anything.
+A verified `@alueducation.com` account becomes staff automatically at sign-up; every `@alustudent.com` account is a student. The project owner can also change anyone's role in the Firebase Console (Firestore, `users`, set `role`). The app itself can never grant staff to a student. Firestore and Storage security rules enforce every permission on the server: only staff can change a status, students can only edit their own submitted snags, nobody can rewrite the history, and unverified or non-ALU accounts cannot read anything.
 
 ## Project structure
 

@@ -32,6 +32,10 @@ describe('users', () => {
     await assertSucceeds(setDoc(doc(dbOf('stu1'), 'users/stu1'), newUser('amani@alustudent.com')));
   });
   // Regression: sign-up writes the profile BEFORE the email is verified.
+  it('ALU staff address signs up as staff OK', async () => {
+    await env.withSecurityRulesDisabled((c) => deleteDoc(doc(c.firestore(), 'users/staff1')));
+    await assertSucceeds(setDoc(doc(dbOf('staff1'), 'users/staff1'), newUser('desk@alueducation.com', { role: 'staff' })));
+  });
   it('create with role staff refused', async () => {
     await env.withSecurityRulesDisabled((c) => deleteDoc(doc(c.firestore(), 'users/stu1')));
     await assertFails(setDoc(doc(dbOf('stu1'), 'users/stu1'), newUser('amani@alustudent.com', { role: 'staff' })));

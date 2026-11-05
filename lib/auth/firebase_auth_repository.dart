@@ -38,7 +38,8 @@ class FirebaseAuthRepository implements AuthRepository {
         await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
           'displayName': name,
           'email': email.toLowerCase(),
-          'role': 'student',
+          // ALU staff addresses start as staff; everyone else as student.
+          'role': email.trim().toLowerCase().endsWith('@alueducation.com') ? 'staff' : 'student',
           'createdAt': FieldValue.serverTimestamp(),
         });
         await user.sendEmailVerification();

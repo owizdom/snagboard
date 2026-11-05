@@ -184,7 +184,8 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['displayName', 'email', 'role', 'createdAt'])
         && request.resource.data.keys().hasAll(['displayName', 'email', 'role', 'createdAt'])
         && request.resource.data.displayName is string
-        && request.resource.data.role == 'student'
+        // Verified-domain rule: @alueducation.com signs up as staff, everyone else as student.
+        && request.resource.data.role == (request.auth.token.email.lower().matches('.*@alueducation[.]com$') ? 'staff' : 'student')
         && request.resource.data.email == request.auth.token.email
         && isNow(request.resource.data.createdAt);
 

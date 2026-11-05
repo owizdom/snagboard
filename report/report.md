@@ -49,7 +49,7 @@ The app uses Riverpod [5].
 
 ## 5. User Roles and Access Control
 
-Every account is created as a student. Staff are appointed by changing `role` in the Firebase Console; the app cannot grant it. Firestore and Storage security rules [3] enforce access on the server. Every rule requires a verified email [1] ending in `@alustudent.com` or `@alueducation.com`.
+A verified `@alueducation.com` account becomes staff at sign-up and an `@alustudent.com` account becomes a student; the rules check the domain, so a student cannot claim staff. The project owner can still change any role in the Firebase Console. Firestore and Storage security rules [3] enforce access on the server. Every rule requires a verified email [1] ending in `@alustudent.com` or `@alueducation.com`.
 
 | Action | Student | Staff |
 |---|---|---|
@@ -101,10 +101,10 @@ Acceptance tests were written from the specification and confirmed failing befor
 |---|---|---|
 | Unit | Validators, status transitions, filtering, duplicate check, model mapping, controllers | 18 |
 | Widget | Auth gate per role, sign-up validation, verification, filing flow, board filters, role-based controls, cross-screen update, profile | 23 |
-| Security rules | Each access-matrix row, one allowed and one refused case, on the Firestore and Storage emulators [9] | 26 |
+| Security rules | Each access-matrix row, one allowed and one refused case, on the Firestore and Storage emulators [9] | 27 |
 | End to end | Student signs up and files with a photo, staff moves it to in progress, student sees the note; iPhone 17 Pro simulator on the emulators | 1 |
 
-A gate script fails if any test fails, any is skipped, or none ran. The final run passed 41 of 41 app tests, 26 of 26 rules tests and the end-to-end test.
+A gate script fails if any test fails, any is skipped, or none ran. The final run passed 41 of 41 app tests, 27 of 27 rules tests and the end-to-end test.
 
 ## 8. Challenges Encountered
 
@@ -140,7 +140,7 @@ A gate script fails if any test fails, any is skipped, or none ran. The final ru
 | History embedded in the snag | `updates` subcollection | One read for details; a status change and its note are one atomic write the rules can check |
 | One query, filters on the phone | A query per filter | No composite indexes, one listener, fine at campus scale |
 | Rules enforce status transitions | Trust the app | A modified app cannot skip steps or rewrite history |
-| Role stored in Firestore, set in the Console | Roles by email domain | Staff and students can share a domain; no extra backend |
+| Role from the verified email domain, editable in the Console | Admin-only appointment | Graders and staff are staff on sign-up with no manual step; the owner can still correct a role |
 
 ## References
 
