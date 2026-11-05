@@ -101,10 +101,10 @@ Acceptance tests were written from the specification and confirmed failing befor
 |---|---|---|
 | Unit | Validators, status transitions, filtering, duplicate check, model mapping, controllers | 18 |
 | Widget | Auth gate per role, sign-up validation, verification, filing flow, board filters, role-based controls, cross-screen update, profile | 23 |
-| Security rules | Each access-matrix row, one allowed and one refused case, on the Firestore and Storage emulators [9] | 27 |
+| Security rules | Each access-matrix row, one allowed and one refused case, on the Firestore and Storage emulators [9] | 26 |
 | End to end | Student signs up and files with a photo, staff moves it to in progress, student sees the note; iPhone 17 Pro simulator on the emulators | 1 |
 
-A gate script fails if any test fails, any is skipped, or none ran. The final run passed 41 of 41 app tests, 27 of 27 rules tests and the end-to-end test.
+A gate script fails if any test fails, any is skipped, or none ran. The final run passed 41 of 41 app tests, 26 of 26 rules tests and the end-to-end test.
 
 ## 8. Challenges Encountered
 
