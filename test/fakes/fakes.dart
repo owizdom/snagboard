@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:snagboard/auth/app_user.dart';
 import 'package:snagboard/auth/auth_providers.dart';
 import 'package:snagboard/auth/auth_repository.dart';
@@ -392,12 +393,12 @@ class TestHarness {
   ];
 
   ProviderContainer container() =>
-      ProviderContainer(overrides: overrides, retry: (_, __) => null);
+      ProviderContainer(overrides: overrides, retry: (_, _) => null);
 
   /// Wraps [child] in the app theme with fakes and no automatic retries.
   Widget wrap(Widget child) => ProviderScope(
     overrides: overrides,
-    retry: (_, __) => null,
+    retry: (_, _) => null,
     child: MaterialApp(theme: buildSnagTheme(), home: child),
   );
 }
