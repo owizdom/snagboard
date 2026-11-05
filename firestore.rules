@@ -1,0 +1,9 @@
+rules_version = '2';
+// Placeholder until track C: denies everything except the todo app.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /todos/{todoId} {
+      allow read, write: if true;
+    }
+  }
+}
