@@ -55,6 +55,11 @@ class FirebaseAuthRepository implements AuthRepository {
   Future<bool> reloadVerified() => _wrap(() async {
     final user = _auth.currentUser;
     if (user == null) throw const AuthFailure('You are signed out');
+    // Refresh the ID token first: the security rules read email_verified
+    // from the token, and reload() alone keeps the old, unverified one.
+    // Doing it before reload() means the app only moves on once Firestore
+    // will accept the verified user.
+    await user.getIdToken(true);
     await user.reload();
     return _auth.currentUser?.emailVerified ?? false;
   });
