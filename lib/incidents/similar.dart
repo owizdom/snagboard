@@ -8,4 +8,9 @@ List<Incident> findSimilar(
   IncidentCategory category,
   String location,
 ) =>
-    throw UnimplementedError();
+    all
+        .where(
+          (i) => i.isOpen && i.category == category && i.location == location,
+        )
+        .toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));

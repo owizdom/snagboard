@@ -7,8 +7,20 @@ import 'incident.dart';
 /// inProgress   -> resolved
 /// resolved     -> inProgress   (reopen when the fix did not hold)
 /// declined     -> acknowledged (reopen)
-List<IncidentStatus> nextStatuses(IncidentStatus from) =>
-    throw UnimplementedError();
+List<IncidentStatus> nextStatuses(IncidentStatus from) => switch (from) {
+  IncidentStatus.submitted => const [
+    IncidentStatus.acknowledged,
+    IncidentStatus.inProgress,
+    IncidentStatus.declined,
+  ],
+  IncidentStatus.acknowledged => const [
+    IncidentStatus.inProgress,
+    IncidentStatus.declined,
+  ],
+  IncidentStatus.inProgress => const [IncidentStatus.resolved],
+  IncidentStatus.resolved => const [IncidentStatus.inProgress],
+  IncidentStatus.declined => const [IncidentStatus.acknowledged],
+};
 
 bool canTransition(IncidentStatus from, IncidentStatus to) =>
-    throw UnimplementedError();
+    nextStatuses(from).contains(to);
