@@ -165,4 +165,30 @@ void main() {
       expect(h.incidents.calls, ['setAffected:abcd1234:stu2:false']);
     });
   });
+
+  // Regression: "Hide my name from other students; staff still see it".
+  group('hidden reporter name', () {
+    Incident hidden() => makeIncident(
+      anonymous: true,
+      history: [
+        StatusChange(
+          status: IncidentStatus.submitted,
+          note: 'Filed',
+          byName: 'Reporter',
+          at: DateTime(2026, 11, 1, 9),
+        ),
+      ],
+    );
+
+    testWidgets('staff see who filed it', (t) async {
+      await open(t, staff, hidden());
+      await t.pumpAndSettle();
+      expect(find.textContaining('Amani Student'), findsWidgets);
+    });
+
+    testWidgets('other students do not', (t) async {
+      await open(t, otherStudent, hidden());
+      expect(find.textContaining('Amani Student'), findsNothing);
+    });
+  });
 }

@@ -244,7 +244,7 @@ class FakeIncidentRepository implements IncidentRepository {
           StatusChange(
             status: IncidentStatus.submitted,
             note: 'Filed',
-            byName: draft.anonymous ? 'Reporter' : reporter.displayName,
+            byName: 'Reporter',
             at: now,
           ),
         ],

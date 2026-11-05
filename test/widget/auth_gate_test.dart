@@ -105,4 +105,24 @@ void main() {
     expect(find.byKey(K.gateRetry), findsOneWidget);
     expect(find.byType(SignInScreen), findsNothing);
   });
+
+  // Regression: an account without a profile must not be a dead end.
+  testWidgets('a verified account with no profile can sign out from the error', (
+    tester,
+  ) async {
+    final h = TestHarness(
+      session: const AuthSession(
+        uid: 'ghost',
+        email: 'ghost@alustudent.com',
+        emailVerified: true,
+      ),
+    );
+    await tester.pumpWidget(h.wrap(const AuthGate()));
+    await tester.pumpAndSettle();
+    expect(find.byKey(K.gateError), findsOneWidget);
+    await tester.tap(find.byKey(K.gateSignOut));
+    await tester.pumpAndSettle();
+    expect(h.auth.calls, contains('signOut'));
+    expect(find.byType(SignInScreen), findsOneWidget);
+  });
 }

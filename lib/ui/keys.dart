@@ -29,6 +29,7 @@ abstract final class K {
   static const gateLoading = ValueKey('gate.loading');
   static const gateError = ValueKey('gate.error');
   static const gateRetry = ValueKey('gate.retry');
+  static const gateSignOut = ValueKey('gate.signOut');
 
   // Shell tabs (student: board, mine, me; staff: queue, board, me)
   static const tabBoard = ValueKey('tab.board');

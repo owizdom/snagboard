@@ -66,7 +66,7 @@ export function validCreate(uid = 'stu1', over = {}) {
     reporterName: 'Amani',
     anonymous: false,
     affectedBy: [],
-    history: [{ status: 'submitted', note: 'Filed', byName: 'Amani', at: Timestamp.now() }],
+    history: [{ status: 'submitted', note: 'Filed', byName: 'Reporter', at: Timestamp.now() }],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     ...over,

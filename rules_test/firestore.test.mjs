@@ -100,6 +100,10 @@ describe('incident reads', () => {
 
 describe('incident create', () => {
   const create = (over, who = 'stu1', uid = 'stu1') => setDoc(inc(dbOf(who), 'new1'), validCreate(uid, over));
+  // Regression: the filing entry never carries the reporter's name, so hiding it later cannot leak.
+  it('create with the reporter name in history refused', async () => {
+    await assertFails(create({ history: [{ status: 'submitted', note: 'Filed', byName: 'Amani', at: Timestamp.now() }] }));
+  });
   it('valid create OK', async () => { await assertSucceeds(create({})); });
   it('valid anonymous create OK', async () => { await assertSucceeds(create({ anonymous: true, reporterName: null })); });
   it('valid create with photo in own folder OK', async () => {
