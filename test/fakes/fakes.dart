@@ -108,7 +108,9 @@ class FakeAuthRepository implements AuthRepository {
     if (verifiedOnReload) {
       final s = _session.value;
       if (s != null) {
-        _session.set(AuthSession(uid: s.uid, email: s.email, emailVerified: true));
+        _session.set(
+          AuthSession(uid: s.uid, email: s.email, emailVerified: true),
+        );
       }
     }
     return verifiedOnReload;
@@ -157,8 +159,11 @@ class FakePhotoStore implements PhotoStore {
   final deletes = <String>[];
 
   @override
-  Future<({String url, String path})> upload(String uid, String localPath,
-      {void Function(double progress)? onProgress}) async {
+  Future<({String url, String path})> upload(
+    String uid,
+    String localPath, {
+    void Function(double progress)? onProgress,
+  }) async {
     onProgress?.call(0.5);
     onProgress?.call(1);
     uploads.add(localPath);
@@ -181,7 +186,7 @@ class FakePhotoPicker implements PhotoPicker {
 /// In-memory snags. Records calls; [failNext] makes the next write throw.
 class FakeIncidentRepository implements IncidentRepository {
   FakeIncidentRepository([List<Incident> initial = const []])
-      : _items = _Latest(List.of(initial));
+    : _items = _Latest(List.of(initial));
   final _Latest<List<Incident>> _items;
   final calls = <String>[];
   Object? failNext;
@@ -195,8 +200,8 @@ class FakeIncidentRepository implements IncidentRepository {
 
   /// Pushes a replacement snag through the stream, as Firestore would.
   void push(Incident updated) => _items.set([
-        for (final i in _items.value) i.id == updated.id ? updated : i,
-      ]);
+    for (final i in _items.value) i.id == updated.id ? updated : i,
+  ]);
 
   void _maybeFail() {
     final f = failNext;
@@ -210,8 +215,11 @@ class FakeIncidentRepository implements IncidentRepository {
   Stream<List<Incident>> watchAll() => _items.stream;
 
   @override
-  Future<String> create(IncidentDraft draft, AppUser reporter,
-      {void Function(double progress)? onProgress}) async {
+  Future<String> create(
+    IncidentDraft draft,
+    AppUser reporter, {
+    void Function(double progress)? onProgress,
+  }) async {
     calls.add('create');
     lastDraft = draft;
     _maybeFail();
@@ -258,14 +266,28 @@ class FakeIncidentRepository implements IncidentRepository {
 
   @override
   Future<void> changeStatus(
-      Incident incident, IncidentStatus to, String note, AppUser staff) async {
+    Incident incident,
+    IncidentStatus to,
+    String note,
+    AppUser staff,
+  ) async {
     calls.add('changeStatus:${incident.id}:${to.wire}');
     _maybeFail();
     final i = _items.value.firstWhere((e) => e.id == incident.id);
-    push(i.copyWith(status: to, history: [
-      ...i.history,
-      StatusChange(status: to, note: note, byName: staff.displayName, at: DateTime.now()),
-    ]));
+    push(
+      i.copyWith(
+        status: to,
+        history: [
+          ...i.history,
+          StatusChange(
+            status: to,
+            note: note,
+            byName: staff.displayName,
+            at: DateTime.now(),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -321,8 +343,16 @@ Incident makeIncident({
     reporterName: anonymous ? null : reporterName,
     anonymous: anonymous,
     affectedBy: affectedBy,
-    history: history ??
-        [StatusChange(status: IncidentStatus.submitted, note: 'Filed', byName: 'Amani Student', at: at)],
+    history:
+        history ??
+        [
+          StatusChange(
+            status: IncidentStatus.submitted,
+            note: 'Filed',
+            byName: 'Amani Student',
+            at: at,
+          ),
+        ],
     createdAt: at,
     updatedAt: at,
   );
@@ -334,16 +364,18 @@ class TestHarness {
     AuthSession? session,
     List<AppUser> users = const [student, otherStudent, staff],
     List<Incident> incidents = const [],
-  })  : auth = FakeAuthRepository(session: session),
-        profiles = FakeProfileRepository(users),
-        incidents = FakeIncidentRepository(incidents);
+  }) : auth = FakeAuthRepository(session: session),
+       profiles = FakeProfileRepository(users),
+       incidents = FakeIncidentRepository(incidents);
 
   /// Signed in and verified as [user].
-  factory TestHarness.signedInAs(AppUser user, {List<Incident> incidents = const []}) =>
-      TestHarness(
-        session: AuthSession(uid: user.uid, email: user.email, emailVerified: true),
-        incidents: incidents,
-      );
+  factory TestHarness.signedInAs(
+    AppUser user, {
+    List<Incident> incidents = const [],
+  }) => TestHarness(
+    session: AuthSession(uid: user.uid, email: user.email, emailVerified: true),
+    incidents: incidents,
+  );
 
   final FakeAuthRepository auth;
   final FakeProfileRepository profiles;
@@ -352,20 +384,20 @@ class TestHarness {
   final picker = FakePhotoPicker();
 
   List<Override> get overrides => [
-        authRepositoryProvider.overrideWithValue(auth),
-        profileRepositoryProvider.overrideWithValue(profiles),
-        incidentRepositoryProvider.overrideWithValue(incidents),
-        photoStoreProvider.overrideWithValue(photos),
-        photoPickerProvider.overrideWithValue(picker),
-      ];
+    authRepositoryProvider.overrideWithValue(auth),
+    profileRepositoryProvider.overrideWithValue(profiles),
+    incidentRepositoryProvider.overrideWithValue(incidents),
+    photoStoreProvider.overrideWithValue(photos),
+    photoPickerProvider.overrideWithValue(picker),
+  ];
 
   ProviderContainer container() =>
       ProviderContainer(overrides: overrides, retry: (_, __) => null);
 
   /// Wraps [child] in the app theme with fakes and no automatic retries.
   Widget wrap(Widget child) => ProviderScope(
-        overrides: overrides,
-        retry: (_, __) => null,
-        child: MaterialApp(theme: buildSnagTheme(), home: child),
-      );
+    overrides: overrides,
+    retry: (_, __) => null,
+    child: MaterialApp(theme: buildSnagTheme(), home: child),
+  );
 }
