@@ -134,7 +134,7 @@ class _SnagListViewState extends ConsumerState<SnagListView> {
             for (final c in IncidentCategory.values)
               _Chip(
                 key: K.categoryChip(c),
-                label: c.code,
+                label: c.label.toUpperCase(),
                 tooltip: c.label,
                 selected: filter.categories.contains(c),
                 onTap: () => notifier.toggleCategory(c),
