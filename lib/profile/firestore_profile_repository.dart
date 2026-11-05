@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import '../auth/app_user.dart';
 import 'profile_repository.dart';
@@ -25,9 +28,31 @@ class FirestoreProfileRepository implements ProfileRepository {
     String uid, {
     required String displayName,
     String? programme,
-  }) => throw UnimplementedError();
+  }) => _doc(uid).update({
+    'displayName': displayName.trim(),
+    'programme': programme,
+  });
 
   @override
-  Future<void> setPhoto(String uid, String localPath) =>
-      throw UnimplementedError();
+  Future<void> setPhoto(String uid, String localPath) async {
+    // 1. Upload the new file.
+    final newPath = 'avatars/$uid/${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final ref = FirebaseStorage.instance.ref(newPath);
+    await ref.putFile(File(localPath), SettableMetadata(contentType: 'image/jpeg'));
+    final url = await ref.getDownloadURL();
+
+    // 2. Remember the old file, then point the profile at the new one.
+    final snap = await _doc(uid).get();
+    final oldPath = snap.data()?['photoPath'] as String?;
+    await _doc(uid).update({'photoUrl': url, 'photoPath': newPath});
+
+    // 3. Delete the old file; it may already be gone.
+    if (oldPath != null) {
+      try {
+        await FirebaseStorage.instance.ref(oldPath).delete();
+      } on FirebaseException catch (e) {
+        if (e.code != 'object-not-found') rethrow;
+      }
+    }
+  }
 }
