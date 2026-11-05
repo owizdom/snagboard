@@ -55,7 +55,14 @@ Future<void> pumpUntilFound(
   final end = DateTime.now().add(timeout);
   while (finder.evaluate().isEmpty) {
     if (DateTime.now().isAfter(end)) {
-      throw TestFailure('timed out after $timeout waiting for $finder');
+      final texts = find
+          .byType(Text)
+          .evaluate()
+          .map((e) => (e.widget as Text).data)
+          .whereType<String>()
+          .join(' | ');
+      throw TestFailure('timed out after $timeout waiting for $finder. '
+          'Visible text: $texts');
     }
     await t.pump(const Duration(milliseconds: 200));
   }
