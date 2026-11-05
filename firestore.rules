@@ -214,9 +214,5 @@ service cloud.firestore {
             || isStaff());
     }
 
-    // The existing todo app relies on this block staying open.
-    match /todos/{todoId} {
-      allow read, write: if true;
-    }
   }
 }

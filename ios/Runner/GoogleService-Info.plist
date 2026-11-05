@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyBvLMJDb3yEWGufc6QGM0snlapdLhMRgg0</string>
+	<string>AIzaSyD5ieWJGet2nr62HnC7C4jKFJ2Ds08CjOw</string>
 	<key>GCM_SENDER_ID</key>
-	<string>121873362472</string>
+	<string>936190831578</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.owizdom.snagboard</string>
 	<key>PROJECT_ID</key>
-	<string>fir-todo-1c2a6</string>
+	<string>snagboard-alu</string>
 	<key>STORAGE_BUCKET</key>
-	<string>fir-todo-1c2a6.firebasestorage.app</string>
+	<string>snagboard-alu.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:121873362472:ios:e7c094b145ef695f458f1d</string>
+	<string>1:936190831578:ios:5f374566e36f0cfa07eee3</string>
 </dict>
 </plist>

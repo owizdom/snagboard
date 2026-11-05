@@ -7,8 +7,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-const projectId = 'fir-todo-1c2a6';
-const storageBucket = 'fir-todo-1c2a6.firebasestorage.app';
+const projectId = 'snagboard-alu';
+const storageBucket = 'snagboard-alu.firebasestorage.app';
 const _owner = {'Authorization': 'Bearer owner'};
 const _json = {
   'Authorization': 'Bearer owner',

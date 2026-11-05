@@ -50,19 +50,18 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCC_sdBinuVQGqcBFslTyyV1psq_kIhw4s',
-    appId: '1:121873362472:android:a5ce9d682453895b458f1d',
-    messagingSenderId: '121873362472',
-    projectId: 'fir-todo-1c2a6',
-    storageBucket: 'fir-todo-1c2a6.firebasestorage.app',
+    apiKey: 'AIzaSyDmGV_cZYK7DtbOmFgP3XE9dcuwJOZzBNU',
+    appId: '1:936190831578:android:1921fe6e8a36aab907eee3',
+    messagingSenderId: '936190831578',
+    projectId: 'snagboard-alu',
+    storageBucket: 'snagboard-alu.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBvLMJDb3yEWGufc6QGM0snlapdLhMRgg0',
-    appId: '1:121873362472:ios:e7c094b145ef695f458f1d',
-    messagingSenderId: '121873362472',
-    projectId: 'fir-todo-1c2a6',
-    storageBucket: 'fir-todo-1c2a6.firebasestorage.app',
+    apiKey: 'AIzaSyD5ieWJGet2nr62HnC7C4jKFJ2Ds08CjOw',
+    appId: '1:936190831578:ios:5f374566e36f0cfa07eee3',
+    messagingSenderId: '936190831578',
+    projectId: 'snagboard-alu',
+    storageBucket: 'snagboard-alu.firebasestorage.app',
     iosBundleId: 'com.owizdom.snagboard',
   );
 }

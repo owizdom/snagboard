@@ -6,6 +6,6 @@ cd "$(dirname "$0")/.."
 export JAVA_HOME=/opt/homebrew/opt/openjdk
 export PATH="$JAVA_HOME/bin:$PATH"
 xcrun simctl boot "iPhone 17 Pro" 2>/dev/null || true
-firebase emulators:exec --only auth,firestore,storage --project fir-todo-1c2a6 \
+firebase emulators:exec --only auth,firestore,storage --project snagboard-alu \
   "flutter test integration_test/app_flow_test.dart -d 'iPhone 17 Pro' --dart-define=USE_EMULATORS=true"
 exit $?

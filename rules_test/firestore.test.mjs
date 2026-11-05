@@ -131,11 +131,3 @@ describe('profile edit', () => {
   });
 });
 
-describe('todos stay open', () => {
-  it('unauthenticated can write and read', async () => {
-    const db = env.unauthenticatedContext().firestore();
-    await assertSucceeds(setDoc(doc(db, 'todos/t1'), { title: 'x', done: false }));
-    await assertSucceeds(getDoc(doc(db, 'todos/t1')));
-  });
-});
-

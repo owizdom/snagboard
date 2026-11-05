@@ -1,32 +1,13 @@
 {
   "project_info": {
-    "project_number": "121873362472",
-    "project_id": "fir-todo-1c2a6",
-    "storage_bucket": "fir-todo-1c2a6.firebasestorage.app"
+    "project_number": "936190831578",
+    "project_id": "snagboard-alu",
+    "storage_bucket": "snagboard-alu.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:121873362472:android:0561f1979a7326bc458f1d",
-        "android_client_info": {
-          "package_name": "com.owizdom.firebase_todo"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCC_sdBinuVQGqcBFslTyyV1psq_kIhw4s"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:121873362472:android:a5ce9d682453895b458f1d",
+        "mobilesdk_app_id": "1:936190831578:android:1921fe6e8a36aab907eee3",
         "android_client_info": {
           "package_name": "com.owizdom.snagboard"
         }
@@ -34,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCC_sdBinuVQGqcBFslTyyV1psq_kIhw4s"
+          "current_key": "AIzaSyDmGV_cZYK7DtbOmFgP3XE9dcuwJOZzBNU"
         }
       ],
       "services": {
