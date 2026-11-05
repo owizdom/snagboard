@@ -20,5 +20,7 @@ Future<void> main() async {
     FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
     await FirebaseStorage.instance.useStorageEmulator('localhost', 9199);
   }
-  runApp(const ProviderScope(child: SnagboardApp()));
+  // No automatic retries: a failed load shows its error panel (with Retry
+  // and Sign out) straight away instead of an endless spinner.
+  runApp(ProviderScope(retry: (_, _) => null, child: const SnagboardApp()));
 }
