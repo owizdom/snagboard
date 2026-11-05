@@ -6,11 +6,15 @@ service cloud.firestore {
 
     // ---------- who is calling ----------
 
-    // Signed in, email verified, and an ALU student or staff address (plus-addressing allowed).
-    function isAlu() {
+    // Signed in with an ALU student or staff address (plus-addressing allowed), verified or not.
+    function isAluAddress() {
       return request.auth != null
-        && request.auth.token.email_verified == true
         && request.auth.token.email.lower().matches('^[^@]+@(alustudent|alueducation)[.]com$');
+    }
+
+    // An ALU address whose email is verified. Every read and write needs this except sign-up.
+    function isAlu() {
+      return isAluAddress() && request.auth.token.email_verified == true;
     }
 
     // The caller's users/{uid} document says role == 'staff' (set only in the Console).
@@ -157,8 +161,9 @@ service cloud.firestore {
       // Read your own profile; staff read any.
       allow read: if isAlu() && (request.auth.uid == uid || isStaff());
 
-      // Create your own profile as a student, with your own token email and a server time.
-      allow create: if isAlu()
+      // Sign-up: create your own profile as a student, with your own token email and a server time.
+      // Allowed before verification, because the app writes it right after creating the account.
+      allow create: if isAluAddress()
         && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['displayName', 'email', 'role', 'createdAt'])
         && request.resource.data.keys().hasAll(['displayName', 'email', 'role', 'createdAt'])
