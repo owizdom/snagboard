@@ -4,10 +4,13 @@ import '../../core/theme.dart';
 
 /// An error message with a retry button. [retryKey] goes on the button.
 class ErrorPanel extends StatelessWidget {
-  const ErrorPanel({super.key, required this.message, required this.onRetry, this.retryKey});
+  const ErrorPanel({super.key, required this.message, required this.onRetry, this.retryKey, this.extra});
   final String message;
   final VoidCallback onRetry;
   final Key? retryKey;
+
+  /// Optional second action under RETRY (e.g. sign out).
+  final Widget? extra;
 
   @override
   Widget build(BuildContext context) => Center(
@@ -21,6 +24,7 @@ class ErrorPanel extends StatelessWidget {
               Text(message, textAlign: TextAlign.center, style: const TextStyle(color: Snag.inkSoft)),
               const SizedBox(height: 16),
               OutlinedButton(key: retryKey, onPressed: onRetry, child: const Text('RETRY')),
+              if (extra != null) ...[const SizedBox(height: 8), extra!],
             ],
           ),
         ),

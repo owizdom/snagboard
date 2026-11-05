@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../auth/auth_controller.dart';
 import '../../auth/auth_providers.dart';
 import '../keys.dart';
 import '../widgets/error_panel.dart';
@@ -21,8 +22,19 @@ class AuthGate extends ConsumerWidget {
       ref.invalidate(currentUserProvider);
     }
 
+    // Errors offer sign out too, so a broken account is never a dead end.
     Widget error(String message) => Scaffold(
-          body: ErrorPanel(key: K.gateError, retryKey: K.gateRetry, message: message, onRetry: retry),
+          body: ErrorPanel(
+            key: K.gateError,
+            retryKey: K.gateRetry,
+            message: message,
+            onRetry: retry,
+            extra: TextButton(
+              key: K.gateSignOut,
+              onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
+              child: const Text('SIGN OUT'),
+            ),
+          ),
         );
     const loading = Scaffold(
       body: Center(key: K.gateLoading, child: CircularProgressIndicator()),
