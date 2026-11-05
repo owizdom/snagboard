@@ -365,6 +365,28 @@ describe('incident delete', () => {
   });
 });
 
+describe('profile edit', () => {
+  const upd = (who, data, uid = who) => updateDoc(doc(dbOf(who), `users/${uid}`), data);
+  it('owner sets displayName and programme OK', async () => {
+    await assertSucceeds(upd('stu1', { displayName: 'Amani K', programme: 'BSc Software Engineering' }));
+  });
+  it('owner sets programme Wizardry refused', async () => {
+    await assertFails(upd('stu1', { programme: 'Wizardry' }));
+  });
+  it('owner sets photoUrl and own photoPath OK', async () => {
+    await assertSucceeds(upd('stu1', { photoUrl: 'https://example.test/a.jpg', photoPath: 'avatars/stu1/1.jpg' }));
+  });
+  it('owner sets photoPath in another uids folder refused', async () => {
+    await assertFails(upd('stu1', { photoUrl: 'https://example.test/a.jpg', photoPath: 'avatars/stu2/1.jpg' }));
+  });
+  it('another student updating the doc refused', async () => {
+    await assertFails(upd('stu2', { displayName: 'Hacked' }, 'stu1'));
+  });
+  it('staff sets own department Facilities OK', async () => {
+    await assertSucceeds(upd('staff1', { programme: 'Facilities' }));
+  });
+});
+
 describe('todos stay open', () => {
   it('unauthenticated can write and read', async () => {
     const db = env.unauthenticatedContext().firestore();

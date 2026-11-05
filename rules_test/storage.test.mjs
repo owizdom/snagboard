@@ -81,3 +81,15 @@ describe('photo delete', () => {
     await assertFails(deleteObject(ref(env.unauthenticatedContext().storage(), 'incident_photos/stu1/seed.jpg')));
   });
 });
+
+describe('avatars', () => {
+  it('own folder image/jpeg small OK', async () => {
+    await assertSucceeds(uploadBytes(ref(st('stu1'), 'avatars/stu1/1.jpg'), small, jpeg));
+  });
+  it('another uids folder refused', async () => {
+    await assertFails(uploadBytes(ref(st('stu1'), 'avatars/stu2/1.jpg'), small, jpeg));
+  });
+  it('3 MB refused', async () => {
+    await assertFails(uploadBytes(ref(st('stu1'), 'avatars/stu1/big.jpg'), new Uint8Array(3 * 1024 * 1024), jpeg));
+  });
+});
