@@ -1,7 +1,7 @@
 import { describe, it, before, after, beforeEach } from 'node:test';
 import { assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
 import {
-  doc, getDoc, setDoc, updateDoc, deleteDoc, Timestamp, serverTimestamp,
+  doc, getDoc, getDocs, collection, setDoc, updateDoc, deleteDoc, Timestamp, serverTimestamp,
 } from 'firebase/firestore';
 import { makeEnv, as, seedIncident, validCreate, T0 } from './helpers.mjs';
 
@@ -30,6 +30,19 @@ describe('users', () => {
   it('create own with role student OK', async () => {
     await env.withSecurityRulesDisabled((c) => deleteDoc(doc(c.firestore(), 'users/stu1')));
     await assertSucceeds(setDoc(doc(dbOf('stu1'), 'users/stu1'), newUser('amani@alustudent.com')));
+  });
+  // Regression: sign-up writes the profile BEFORE the email is verified.
+  it('unverified ALU user creates own student profile OK (sign-up)', async () => {
+    await assertSucceeds(setDoc(doc(dbOf('unv'), 'users/unv'), newUser('new@alustudent.com')));
+  });
+  it('unverified ALU user creating a staff profile refused', async () => {
+    await assertFails(setDoc(doc(dbOf('unv'), 'users/unv'), newUser('new@alustudent.com', { role: 'staff' })));
+  });
+  it('non-ALU user creating a profile refused', async () => {
+    await assertFails(setDoc(doc(dbOf('out'), 'users/out'), newUser('x@gmail.com')));
+  });
+  it('unverified ALU user still cannot read incidents', async () => {
+    await assertFails(getDocs(collection(dbOf('unv'), 'incidents')));
   });
   it('create with role staff refused', async () => {
     await env.withSecurityRulesDisabled((c) => deleteDoc(doc(c.firestore(), 'users/stu1')));
