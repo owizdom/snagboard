@@ -23,7 +23,7 @@ abstract final class Snag {
   static Color statusColor(IncidentStatus s) => switch (s) {
         IncidentStatus.submitted => const Color(0xFF6B6359),
         IncidentStatus.acknowledged => const Color(0xFF2457D6),
-        IncidentStatus.inProgress => const Color(0xFFB86E00),
+        IncidentStatus.inProgress => const Color(0xFF9A5B00),
         IncidentStatus.resolved => const Color(0xFF1F7A4D),
         IncidentStatus.declined => const Color(0xFF9B1C1C),
       };
