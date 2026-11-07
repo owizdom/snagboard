@@ -6,7 +6,7 @@ Campus incident reporting for ALU. A snag is anything on campus that needs fixin
 
 Built with Flutter, Riverpod, Firebase Authentication, Cloud Firestore and Firebase Storage. Runs on the iOS simulator (tested on iPhone 17 Pro, iOS 26.5).
 
-Demo video: https://youtu.be/sGh7r2d4tlg
+Demo video: https://youtu.be/KK-rRvw1BTc
 
 ![Snagboard screens](report/figures/screens.png)
 

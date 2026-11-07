@@ -3,7 +3,7 @@ title: "Snagboard: Campus Incident Reporting App"
 subtitle: "Technical Report, Formative Assignment 2 (Individual)"
 author: "Wisdom Okechukwu"
 repo: "https://github.com/owizdom/snagboard"
-video: "https://youtu.be/sGh7r2d4tlg"
+video: "https://youtu.be/KK-rRvw1BTc"
 ---
 
 ## 1. Introduction
@@ -16,20 +16,15 @@ Snagboard gives each problem (a "snag") one record with one visible history. Stu
 
 ![Figure 1. Architecture. Screens read Riverpod providers, providers call repository interfaces, and only the repositories know Firebase.](figures/architecture.png)
 
-- `lib/ui`: the screens and shared widgets. No screen calls Firebase.
-- `lib/state`: Riverpod providers and controllers (Section 4), plus the form checks.
-- `lib/data`: the models and the repositories (`AuthRepository`, `ProfileRepository`, `IncidentRepository`, `PhotoStore`), the only code that talks to Firebase.
-
-Navigation follows the authentication state (Figure 2). An `AuthGate` widget shows sign-in when signed out, a verify-email screen until the address is verified, and then the student or staff home.
+The code has three layers: `lib/ui` (screens and widgets, no Firebase calls), `lib/state` (Riverpod providers and controllers) and `lib/data` (models and the repositories `AuthRepository`, `ProfileRepository`, `IncidentRepository` and `PhotoStore`, the only code that talks to Firebase).
 
 ![Figure 2. Authentication and navigation flow.](figures/authflow.png)
 
-Where each Flutter concept lives in the code:
 
 | Concept | How the app uses it | Where |
 |---|---|---|
-| Widgets | Reusable pieces shared by every screen: `InkButton`, `InkField`, `ErrorText`, `TicketCard`, `StatusStamp`, `StatusTrack` | `ui/widgets.dart`, `ui/ticket.dart` |
-| Navigation | `AuthGate` picks the first screen from the login state; `HomeShell` holds the tabs; `Navigator.push` opens filing and details | `ui/auth_screens.dart`, `ui/home_screens.dart` |
+| Widgets | Reused on every screen: `InkButton`, `InkField`, `ErrorText`, `TicketCard`, `StatusStamp`, `StatusTrack` | `ui/widgets.dart`, `ui/ticket.dart` |
+| Navigation | `AuthGate` shows sign-in, then verify-email, then the student or staff home (Figure 2); `Navigator.push` opens filing and details | `ui/auth_screens.dart`, `ui/home_screens.dart` |
 | Forms and validation | `Form` with validator functions (`validateAluEmail`, `validatePassword`, `validateTitle`); the filing controller checks each step before moving on | `state/report_form.dart` |
 | Asynchronous work | Firestore streams feed `StreamProvider`s; actions `await` Firebase calls; the photo upload reports progress before the Firestore write | `state/`, `data/incident_repository.dart` |
 | State management | Riverpod: one `incidentsProvider` stream, derived providers for filters and details, `AsyncNotifier` controllers for actions | `state/` |
@@ -105,22 +100,21 @@ The look is a work-order board: paper background, black ink, one orange accent, 
 
 ## 7. Testing Strategy
 
-Tests follow Flutter's testing guide [6] for app logic and Firebase's rules testing guide [9] for the server rules.
-
 | Level | Covers | Tests |
 |---|---|---|
-| App logic | ALU email check, password and title rules, allowed status moves | 4 |
+| App logic [6] | ALU email check, password and title rules, allowed status moves | 4 |
 | Security rules | Staff sign-up by domain, a student cannot claim staff, verified ALU reads only, filing, staff status moves with a note, a student cannot change a status; run on the Firestore emulator [9] | 9 |
 
-The final run passed 4 of 4 app tests and 9 of 9 rules tests. Each main workflow was also checked by hand on the iPhone 17 Pro simulator against the live Firebase project, as recorded in the demo video:
+The final run passed 4 of 4 app tests and 9 of 9 rules tests. Each workflow was also checked by hand on the iPhone 17 Pro simulator against the live project, as the demo video shows:
 
 | Manual check | Result |
 |---|---|
-| Sign up with an ALU address and verify from the inbox | Account listed in Authentication, app opens |
+| Sign up with an ALU address, verify from the inbox | Verification email arrives; after the link the app opens |
 | File a snag with a photo | Snag in Firestore with its first history entry, photo shown on the card |
 | Filter by category | Water shows the snag; Electricity shows "No matches" |
 | Staff moves the snag to In progress with a note | Note appended to the history in Firestore |
 | Sign out as staff, sign in as the student | Student sees In progress and the staff note |
+| Owner edits, then withdraws a submitted snag | "Changes saved"; after withdrawing, the snag leaves the board |
 
 ## 8. Challenges Encountered
 
