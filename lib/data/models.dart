@@ -41,12 +41,6 @@ class AppUser {
 
   bool get isStaff => role == UserRole.staff;
 
-  Map<String, dynamic> toMap() => {
-    'displayName': displayName,
-    'email': email,
-    'role': role.name,
-  };
-
   factory AppUser.fromMap(String uid, Map<String, dynamic> map) => AppUser(
     uid: uid,
     email: (map['email'] ?? '') as String,
@@ -224,54 +218,6 @@ class Incident {
   bool get isOpen =>
       status == IncidentStatus.submitted ||
       status == IncidentStatus.acknowledged;
-
-  Incident copyWith({
-    IncidentStatus? status,
-    List<String>? affectedBy,
-    List<StatusChange>? history,
-    DateTime? updatedAt,
-    String? title,
-    String? description,
-  }) => Incident(
-    id: id,
-    title: title ?? this.title,
-    description: description ?? this.description,
-    category: category,
-    location: location,
-    spot: spot,
-    urgency: urgency,
-    photoUrl: photoUrl,
-    photoPath: photoPath,
-    status: status ?? this.status,
-    reporterId: reporterId,
-    reporterName: reporterName,
-    anonymous: anonymous,
-    affectedBy: affectedBy ?? this.affectedBy,
-    history: history ?? this.history,
-    createdAt: createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-  );
-
-  /// Firestore map. `createdAt` and `updatedAt` are written as
-  /// [DateTime]s here; the repository swaps in server timestamps.
-  Map<String, dynamic> toMap() => {
-    'title': title,
-    'description': description,
-    'category': category.name,
-    'location': location,
-    'spot': spot,
-    'urgency': urgency.name,
-    'status': status.wire,
-    'photoUrl': photoUrl,
-    'photoPath': photoPath,
-    'reporterId': reporterId,
-    'reporterName': reporterName,
-    'anonymous': anonymous,
-    'affectedBy': affectedBy,
-    'history': [for (final h in history) h.toMap()],
-    'createdAt': createdAt,
-    'updatedAt': updatedAt,
-  };
 
   /// Accepts Firestore `Timestamp`s or [DateTime]s for dates. Unknown
   /// enum strings fall back instead of throwing.

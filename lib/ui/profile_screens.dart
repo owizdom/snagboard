@@ -200,7 +200,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _name = TextEditingController();
   String? _programme;
   bool _loaded = false;
-  bool _busy = false;
 
   @override
   void dispose() {
@@ -213,37 +212,33 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 
   Future<void> _changePhoto() async {
-    final user = ref.read(currentUserProvider).value;
-    if (user == null) return;
-    setState(() => _busy = true);
+    final String? path;
     try {
-      final path = await ref.read(photoPickerProvider).pick(fromCamera: false);
-      if (path != null) {
-        await ref.read(profileRepositoryProvider).setPhoto(user.uid, path);
-        if (!mounted) return;
-        _showMessage('Photo updated.');
-      }
-    } catch (e) {
-      if (!mounted) return;
-      _showMessage('Could not change the photo. Try again.');
+      path = await ref.read(photoPickerProvider).pick(fromCamera: false);
+    } catch (_) {
+      _showMessage('Could not open your photos. Try again.');
+      return;
     }
-    if (mounted) setState(() => _busy = false);
+    if (path == null) return;
+    final ok = await ref
+        .read(profileControllerProvider.notifier)
+        .setPhoto(path);
+    if (!mounted) return;
+    _showMessage(
+      ok ? 'Photo updated.' : 'Could not change the photo. Try again.',
+    );
   }
 
   Future<void> _save() async {
-    final user = ref.read(currentUserProvider).value;
-    if (user == null || !_formKey.currentState!.validate()) return;
-    setState(() => _busy = true);
-    try {
-      await ref
-          .read(profileRepositoryProvider)
-          .update(user.uid, displayName: _name.text, programme: _programme);
-      if (!mounted) return;
+    if (!_formKey.currentState!.validate()) return;
+    final ok = await ref
+        .read(profileControllerProvider.notifier)
+        .save(displayName: _name.text, programme: _programme);
+    if (!mounted) return;
+    if (ok) {
       _showMessage('Profile saved.');
       Navigator.of(context).pop();
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _busy = false);
+    } else {
       _showMessage('Could not save your profile. Try again.');
     }
   }
@@ -251,6 +246,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider).value;
+    final busy = ref.watch(profileControllerProvider).isLoading;
     if (user == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -278,7 +274,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             InkButton(
               key: K.editPhoto,
               label: 'CHANGE PHOTO',
-              loading: _busy,
+              loading: busy,
               onPressed: _changePhoto,
             ),
             const SizedBox(height: 16),
@@ -319,7 +315,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               key: K.editSave,
               label: 'SAVE',
               accent: true,
-              loading: _busy,
+              loading: busy,
               onPressed: _save,
             ),
           ],

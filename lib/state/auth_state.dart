@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snagboard/data/auth_repository.dart';
 import 'package:snagboard/data/models.dart';
 
-/// Overridden with fakes in tests.
+/// The Firebase implementations, provided once and shared app-wide.
 final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => FirebaseAuthRepository(),
 );
@@ -84,3 +84,33 @@ class AuthController extends AsyncNotifier<void> {
 final authControllerProvider = AsyncNotifierProvider<AuthController, void>(
   AuthController.new,
 );
+
+/// Saves the signed-in user's own profile: name, degree or department, and
+/// photo. Loading while a save runs; returns whether it worked.
+class ProfileController extends AsyncNotifier<void> {
+  @override
+  FutureOr<void> build() {}
+
+  Future<bool> _run(Future<void> Function(String uid) action) async {
+    final user = ref.read(currentUserProvider).value;
+    if (user == null) return false;
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => action(user.uid));
+    return state is! AsyncError;
+  }
+
+  Future<bool> save({required String displayName, String? programme}) => _run(
+    (uid) => ref
+        .read(profileRepositoryProvider)
+        .update(uid, displayName: displayName, programme: programme),
+  );
+
+  Future<bool> setPhoto(String localPath) => _run(
+    (uid) => ref.read(profileRepositoryProvider).setPhoto(uid, localPath),
+  );
+}
+
+final profileControllerProvider =
+    AsyncNotifierProvider.autoDispose<ProfileController, void>(
+      ProfileController.new,
+    );

@@ -159,8 +159,7 @@ String timeAgo(DateTime t, DateTime now) {
   return formatDateTime(t).split(',').first;
 }
 
-/// Widget keys shared by the screens and the tests. Screens must attach
-/// these keys to the widgets named here; tests find widgets only by them.
+/// Stable keys on the main widgets, so each one can be found by name.
 abstract final class K {
   // Sign in
   static const signInEmail = ValueKey('signIn.email');

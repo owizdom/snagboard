@@ -20,8 +20,8 @@ abstract class AuthRepository {
 
   Future<void> signIn(String email, String password);
 
-  /// Creates the account, writes `users/{uid}` with role student, and sends
-  /// the verification email.
+  /// Creates the account, writes `users/{uid}` (staff for @alueducation.com,
+  /// student otherwise) and sends the verification email.
   Future<void> signUp(String name, String email, String password);
 
   Future<void> sendVerificationEmail();
@@ -139,8 +139,6 @@ abstract class ProfileRepository {
   /// The profile at `users/{uid}`, or null while it does not exist yet.
   Stream<AppUser?> watch(String uid);
 
-  Future<void> create(AppUser user);
-
   /// Owner only: name and degree/department.
   Future<void> update(
     String uid, {
@@ -164,11 +162,6 @@ class FirestoreProfileRepository implements ProfileRepository {
     if (!snap.exists || data == null) return null;
     return AppUser.fromMap(uid, data);
   });
-
-  @override
-  Future<void> create(AppUser user) =>
-      _doc(user.uid)
-          .set({...user.toMap(), 'createdAt': FieldValue.serverTimestamp()});
 
   @override
   Future<void> update(

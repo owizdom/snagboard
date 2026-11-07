@@ -5,8 +5,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:snagboard/data/models.dart';
 
-/// Every read and write of snags goes through this interface. The app uses
-/// the Firestore implementation; tests use an in-memory fake.
+/// Every read and write of snags goes through this interface, implemented
+/// below with Firestore.
 abstract class IncidentRepository {
   /// All snags, newest first, at most 200. Emits again on every change.
   Stream<List<Incident>> watchAll();

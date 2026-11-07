@@ -354,3 +354,15 @@ class ChoiceBox extends StatelessWidget {
     ),
   );
 }
+
+/// A red, bold error line, used under forms and actions.
+class ErrorText extends StatelessWidget {
+  const ErrorText(this.message, {super.key});
+  final String message;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    message,
+    style: const TextStyle(color: Snag.danger, fontWeight: FontWeight.w700),
+  );
+}

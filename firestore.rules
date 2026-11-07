@@ -17,7 +17,8 @@ service cloud.firestore {
       return isAluAddress() && request.auth.token.email_verified == true;
     }
 
-    // The caller's users/{uid} document says role == 'staff' (set only in the Console).
+    // The caller's users/{uid} document says role == 'staff' (set at sign-up for
+    // @alueducation.com addresses; the owner can also change it in the Console).
     function isStaff() {
       let path = /databases/$(database)/documents/users/$(request.auth.uid);
       return exists(path) && get(path).data.role == 'staff';

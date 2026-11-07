@@ -196,14 +196,7 @@ class WhatStep extends ConsumerWidget {
         if (error != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
-              error,
-              key: K.fieldError,
-              style: const TextStyle(
-                color: Snag.danger,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            child: ErrorText(error, key: K.fieldError),
           ),
         for (final c in IncidentCategory.values)
           Padding(
@@ -354,14 +347,7 @@ class _WhereStepState extends ConsumerState<WhereStep> {
         if (error != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
-              error,
-              key: K.fieldError,
-              style: const TextStyle(
-                color: Snag.danger,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            child: ErrorText(error, key: K.fieldError),
           ),
         Wrap(
           spacing: 8,
@@ -543,7 +529,7 @@ class _DetailsStepState extends ConsumerState<DetailsStep> {
           OutlinedButton.icon(
             key: K.addPhoto,
             onPressed: _pickPhoto,
-            icon: const Icon(Icons.photo_camera_outlined),
+            icon: const Icon(Icons.photo_library_outlined),
             label: const Text('ADD A PHOTO (OPTIONAL)'),
           )
         else
@@ -680,13 +666,7 @@ class ReviewStep extends ConsumerWidget {
         ],
         if (form.error != null) ...[
           const SizedBox(height: 16),
-          Text(
-            form.error!,
-            style: const TextStyle(
-              color: Snag.danger,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+          ErrorText(form.error!),
         ],
       ],
     );

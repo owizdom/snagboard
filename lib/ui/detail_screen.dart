@@ -205,7 +205,8 @@ class DetailActions extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!_isOwner) ...[
+        // Only students count themselves as affected; staff triage instead.
+        if (!_isOwner && !user.isStaff) ...[
           const SectionLabel('SAME PROBLEM?'),
           OutlinedButton(
             key: K.affectsToggle,
@@ -429,13 +430,7 @@ class _StatusNoteSheetState extends ConsumerState<StatusNoteSheet> {
             if (_error != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  _error!,
-                  style: const TextStyle(
-                    color: Snag.danger,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+                child: ErrorText(_error!),
               ),
             const SizedBox(height: 8),
             InkButton(

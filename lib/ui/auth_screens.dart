@@ -162,13 +162,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 ),
                 if (auth.hasError && !auth.isLoading) ...[
                   const SizedBox(height: 12),
-                  Text(
-                    errorMessage(auth.error!),
-                    style: const TextStyle(
-                      color: Snag.danger,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  ErrorText(errorMessage(auth.error!)),
                 ],
                 const SizedBox(height: 20),
                 InkButton(
@@ -348,13 +342,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 ),
                 if (auth.hasError && !auth.isLoading) ...[
                   const SizedBox(height: 12),
-                  Text(
-                    errorMessage(auth.error!),
-                    style: const TextStyle(
-                      color: Snag.danger,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  ErrorText(errorMessage(auth.error!)),
                 ],
                 const SizedBox(height: 20),
                 InkButton(

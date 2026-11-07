@@ -6,7 +6,7 @@ import 'package:snagboard/data/models.dart';
 import 'package:snagboard/state/auth_state.dart';
 import 'package:snagboard/state/report_form.dart';
 
-/// Overridden with fakes in tests.
+/// The Firebase implementations, provided once and shared app-wide.
 final photoStoreProvider = Provider<PhotoStore>((ref) => FirebasePhotoStore());
 
 final photoPickerProvider = Provider<PhotoPicker>(

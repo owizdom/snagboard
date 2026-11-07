@@ -136,7 +136,7 @@ class ReportFormState {
 /// Holds the draft while a student files or edits a snag.
 ///
 /// Step validation: step 0 needs a category; step 1 needs a location;
-/// step 2 needs a valid title and description (core/validators.dart).
+/// step 2 needs a valid title and description (the validators above).
 /// `next()` validates the current step, fills `errors` and only advances
 /// when it is valid. Changing a field clears that field's error.
 /// `submit()` calls `create` (or `updateDetails` when editing) on
@@ -236,7 +236,10 @@ class ReportFormController extends Notifier<ReportFormState> {
       }
       state = state.copyWith(submitting: false, createdId: id);
     } catch (e) {
-      state = state.copyWith(submitting: false, error: e.toString());
+      state = state.copyWith(
+        submitting: false,
+        error: 'Could not send your snag. Check your connection and try again.',
+      );
     }
   }
 }
