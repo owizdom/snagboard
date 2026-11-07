@@ -236,6 +236,9 @@ class FakeIncidentRepository implements IncidentRepository {
   /// Makes [watchAll] fail for the next listener.
   set watchError(Object e) => _items.pendingError = e;
 
+  /// Refuses the listeners already open, as Firestore does after sign-out.
+  void refuseOpenListeners(Object e) => _items.error(e);
+
   List<Incident> get items => _items.value;
 
   /// Pushes a replacement snag through the stream, as Firestore would.
