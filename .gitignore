@@ -47,6 +47,5 @@ app.*.map.json
 # Widget Preview related
 .widget_preview/
 
-.check/
 rules_test/node_modules/
 *.log

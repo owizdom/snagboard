@@ -1,1 +1,5 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"snagboard-alu","appId":"1:936190831578:android:1921fe6e8a36aab907eee3","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"snagboard-alu","appId":"1:936190831578:ios:5f374566e36f0cfa07eee3","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"snagboard-alu","configurations":{"android":"1:936190831578:android:1921fe6e8a36aab907eee3","ios":"1:936190831578:ios:5f374566e36f0cfa07eee3"}}}}},"firestore":{"rules":"firestore.rules","indexes":"firestore.indexes.json"},"storage":{"rules":"storage.rules"},"emulators":{"auth":{"port":9099},"firestore":{"port":8080},"storage":{"port":9199},"ui":{"enabled":false},"singleProjectMode":true}}
+{
+  "firestore": { "rules": "firestore.rules" },
+  "storage": { "rules": "storage.rules" },
+  "emulators": { "firestore": { "port": 8080 }, "ui": { "enabled": false }, "singleProjectMode": true }
+}

@@ -16,10 +16,9 @@ Snagboard gives each problem (a "snag") one record with one visible history. Stu
 
 ![Figure 1. Architecture. Screens read Riverpod providers, providers call repository interfaces, and only the repositories know Firebase.](figures/architecture.png)
 
-- UI (`lib/ui`): screens and reusable widgets. No screen calls Firebase.
-- State: Riverpod providers and controllers (Section 4).
-- Business rules: plain Dart functions for validation, status transitions, filtering and duplicate detection.
-- Data: `AuthRepository`, `ProfileRepository`, `IncidentRepository` and `PhotoStore` interfaces, with Firebase implementations in the app and in-memory fakes in tests.
+- `lib/ui`: the screens and shared widgets. No screen calls Firebase.
+- `lib/state`: Riverpod providers and controllers (Section 4), plus the form checks.
+- `lib/data`: the models and the repositories (`AuthRepository`, `ProfileRepository`, `IncidentRepository`, `PhotoStore`), the only code that talks to Firebase.
 
 Navigation follows the authentication state (Figure 2). An `AuthGate` widget shows sign-in when signed out, a verify-email screen until the address is verified, and then the student or staff home.
 
@@ -95,32 +94,25 @@ The look is a work-order board: paper background, black ink, one orange accent, 
 
 ## 7. Testing Strategy
 
-Acceptance tests were written from the specification and confirmed failing before any implementation existed [6].
-
 | Level | Covers | Tests |
 |---|---|---|
-| Unit | Validators, status transitions, filtering, duplicate check, model mapping, controllers | 18 |
-| Widget | Auth gate per role, sign-up validation, verification, filing flow, board filters, role-based controls, cross-screen update, profile | 23 |
-| Security rules | Each access-matrix row, one allowed and one refused case, on the Firestore and Storage emulators [9] | 27 |
-| End to end | Student signs up and files with a photo, staff moves it to in progress, student sees the note; iPhone 17 Pro simulator on the emulators | 1 |
+| App logic | ALU email check, password and title rules, allowed status moves | 4 |
+| Security rules | Staff sign-up by domain, a student cannot claim staff, verified ALU reads only, filing, staff status moves with a note, a student cannot change a status; run on the Firestore emulator [9] | 9 |
 
-A gate script fails if any test fails, any is skipped, or none ran. The final run passed 41 of 41 app tests, 27 of 27 rules tests and the end-to-end test.
+Every flow was also checked by hand on the iPhone 17 Pro simulator against the live project. The final run passed 4 of 4 app tests and 9 of 9 rules tests.
 
 ## 8. Challenges Encountered
 
 - Firebase Storage now requires the pay-as-you-go Blaze plan [4]. The project was upgraded and the bucket placed in a no-cost region.
-- An automated test cannot open an inbox, so the end-to-end test verifies accounts through the Auth emulator; the live demo uses a real ALU inbox.
-- The usual Firebase mocking packages did not resolve against the current SDK, so repositories sit behind interfaces with hand-written fakes.
-- Riverpod 3 retries failed providers automatically; tests switch this off so error states can be checked.
-
-- The end-to-end test found a bug every other test missed: sign-up writes the profile before the email is verified, and the rules refused it. Profile creation is now the one write allowed before verification.
+- Riverpod 3 retries failed providers automatically, which left an endless spinner; retries are off so errors show a Retry button.
+- Sign-up writes the profile before the email is verified, and the rules refused it. Profile creation is now the one write allowed before verification.
 - After verifying, Firebase keeps the old login token, which still says "not verified", so the rules kept refusing the user. The app now refreshes the token before moving on.
 
 ## 9. Lessons Learned
 
 - Security belongs in the rules, and the rules need their own tests, including the refused cases.
 - Deriving every screen from one stream removes "updated here but not there" bugs.
-- Writing tests first turned each vague requirement into a pass or fail condition.
+- A live listener must restart for each signed-in user; otherwise the refusal of the last account's listener shows up as an error for the next one.
 
 ## 10. Limitations and Future Work
 
@@ -135,8 +127,8 @@ A gate script fails if any test fails, any is skipped, or none ran. The final ru
 
 | Decision | Alternative | Why |
 |---|---|---|
-| Riverpod | Provider, BLoC | Streams map directly to providers; derived providers keep screens in sync without a BuildContext; tests override one provider per repository |
-| Repository interfaces | Firebase calls in widgets | Testable with fakes; Firebase code lives in four files |
+| Riverpod | Provider, BLoC | Streams map directly to providers; derived providers keep screens in sync without a BuildContext; screens share data without passing it down |
+| Repositories | Firebase calls in widgets | All Firebase code sits in two files in `lib/data` |
 | History embedded in the snag | `updates` subcollection | One read for details; a status change and its note are one atomic write the rules can check |
 | One query, filters on the phone | A query per filter | No composite indexes, one listener, fine at campus scale |
 | Rules enforce status transitions | Trust the app | A modified app cannot skip steps or rewrite history |

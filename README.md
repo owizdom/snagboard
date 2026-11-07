@@ -1,6 +1,6 @@
 # Snagboard
 
-<img src="readme/logo.png" alt="Snagboard" width="320">
+<img src="report/figures/logo.png" alt="Snagboard" width="320">
 
 Campus incident reporting for ALU. A snag is anything on campus that needs fixing: a dry tap, a dead socket, a broken chair, a safety hazard. Students file a snag with an optional photo and follow it on a shared campus board. Staff move each snag along a fixed status track and leave a note at every step, so the student always knows what is happening.
 
@@ -8,7 +8,7 @@ Built with Flutter, Riverpod, Firebase Authentication, Cloud Firestore and Fireb
 
 Demo video: VIDEO_URL
 
-![Snagboard screens](readme/screens.png)
+![Snagboard screens](report/figures/screens.png)
 
 ## Try it
 
@@ -35,15 +35,13 @@ A verified `@alueducation.com` account becomes staff automatically at sign-up; e
 
 ```
 lib/
-  auth/        sign-in state, auth controller, Firebase Auth repository
-  profile/     user profiles in Firestore
-  incidents/   snag model, status flow, filters, form controller, Firestore and Storage repositories
-  core/        theme, validators, campus locations and programmes
-  ui/          screens and reusable widgets
+  main.dart     app start
+  data/         models, and the only code that talks to Firebase (Auth, Firestore, Storage)
+  state/        Riverpod providers and controllers the screens share
+  ui/           theme, shared widgets and the screens
 firestore.rules, storage.rules   server-side access control
-test/          unit and widget tests
-rules_test/    security rules tests (Firestore and Storage emulators)
-integration_test/  end-to-end test on the simulator against the emulators
+test/          app logic tests
+rules_test/    security rules tests on the Firestore emulator
 ```
 
 ## Run it
@@ -60,11 +58,9 @@ The app connects to the Firebase project configured in `lib/firebase_options.dar
 ## Tests
 
 ```
-tool/check.sh   # analyzer, unit and widget tests, security rules tests
-tool/e2e.sh     # full journey on the simulator against the local emulators
+flutter test                              # app logic
+cd rules_test && npm install && npm test  # security rules, needs the Firebase CLI and Java
 ```
-
-`tool/check.sh` fails if any test fails, any test is skipped, or no tests run.
 
 ## Report
 
