@@ -17,8 +17,13 @@ class TicketCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final i = incident;
-    final place = (i.spot == null || i.spot!.isEmpty) ? i.location : '${i.location}, ${i.spot}';
-    final small = Snag.label(size: 11, color: Snag.inkSoft).copyWith(letterSpacing: 0.4);
+    final place = (i.spot == null || i.spot!.isEmpty)
+        ? i.location
+        : '${i.location}, ${i.spot}';
+    final small = Snag.label(
+      size: 11,
+      color: Snag.inkSoft,
+    ).copyWith(letterSpacing: 0.4);
     return InkWell(
       onTap: onTap,
       splashFactory: NoSplash.splashFactory,
@@ -46,13 +51,21 @@ class TicketCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Text(i.ticketCode, style: Snag.label(size: 12, color: Snag.inkSoft)),
+                          Flexible(
+                            child: Text(
+                              i.ticketCode,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Snag.label(size: 12, color: Snag.inkSoft),
+                            ),
+                          ),
                           if (i.urgency == Urgency.urgent) ...[
                             const SizedBox(width: 8),
-                            Text('URGENT', style: Snag.label(size: 11, color: Snag.danger)),
+                            Text(
+                              'URGENT',
+                              style: Snag.label(size: 11, color: Snag.danger),
+                            ),
                           ],
-                          const Spacer(),
-                          StatusStamp(key: K.ticketStamp(i.id), status: i.status),
                         ],
                       ),
                       const SizedBox(height: 6),
@@ -60,13 +73,40 @@ class TicketCard extends StatelessWidget {
                         i.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, height: 1.2),
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          height: 1.2,
+                        ),
                       ),
                       const SizedBox(height: 4),
-                      Text(place, maxLines: 1, overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 13, color: Snag.inkSoft)),
+                      Text(
+                        place,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Snag.inkSoft,
+                        ),
+                      ),
                       const SizedBox(height: 6),
-                      Text('AFFECTS ${i.affectedBy.length}', style: small),
+                      // The stamp sits on the bottom line so a photo, URGENT and a long
+                      // status never crowd one row.
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'AFFECTS ${i.affectedBy.length}',
+                              style: small,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          StatusStamp(
+                            key: K.ticketStamp(i.id),
+                            status: i.status,
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -87,7 +127,8 @@ class TicketCard extends StatelessWidget {
                       i.photoUrl!,
                       fit: BoxFit.cover,
                       semanticLabel: 'Photo of the snag',
-                      errorBuilder: (_, _, _) => const Icon(Icons.photo_camera_outlined),
+                      errorBuilder: (_, _, _) =>
+                          const Icon(Icons.photo_camera_outlined),
                     ),
                   ),
                 ),
