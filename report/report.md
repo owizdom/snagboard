@@ -3,7 +3,7 @@ title: "Snagboard: Campus Incident Reporting App"
 subtitle: "Technical Report, Formative Assignment 2 (Individual)"
 author: "Wisdom Okechukwu"
 repo: "https://github.com/owizdom/snagboard"
-video: "VIDEO_URL"
+video: "https://youtu.be/sGh7r2d4tlg"
 ---
 
 ## 1. Introduction
