@@ -14,7 +14,6 @@ Demo video: https://youtu.be/sGh7r2d4tlg
 
 - Students: sign up in the app with your own ALU email (`name@alustudent.com`). Firebase sends a verification link to that inbox; tap it, return to the app and tap I've verified.
 - Staff: sign up the same way with an `@alueducation.com` address and you are staff automatically after verifying.
-- Staff test account, already verified and set to staff: `s.stafftest@alueducation.com`, password `staff1234`. Sign in with it to see the staff queue and move a snag along its status track.
 
 ## Features
 
